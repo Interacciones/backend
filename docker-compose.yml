@@ -1,0 +1,61 @@
+# Codigo basado en:
+# https://github.com/iic2173/ayudantia-docker/tree/main
+# https://docs.docker.com/get-started/08_using_compose/
+# ChatGPT
+
+
+services: # The containers we are going to run
+  app:
+    build:
+      context: ./koa-app/ # The path in the machine that have the files, in this case root
+      dockerfile: Dockerfile # The name of the Dockerfile definition
+    container_name: app
+    restart: unless-stopped
+    volumes:
+      - ./koa-app/src:/app/src # To copy changes in the local machine to the container.
+    ports:
+      - "3000:3000" # To expose the app to the machine localhost (machine-port:container:port)
+    networks:
+      - app-network # Connect the app to the network, in this case to use the database
+    depends_on: # Build dependencies in case one containers needs another to be builded first
+      db:
+        condition: service_healthy
+      
+    environment:
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      PORT: ${PORT}
+      DB_DIALECT: ${DB_DIALECT}
+      DB_NAME_DEV: ${DB_NAME_DEV}
+      DB_NAME_PROD: ${DB_NAME_PROD}
+      DB_NAME_TEST: ${DB_NAME_TEST}
+      DB_HOST: ${DB_HOST}
+
+  db: # The database service
+    image: postgres:16 # Using the oficial dockerhub image
+    container_name: postgres
+    networks:
+      - app-network # Connect to the network to be used by other containers (ej: the web server)
+    environment: # all the enviroment variables defined in the container (see postgres official image docs https://hub.docker.com/_/postgres)
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME_DEV}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_NAME_DEV} -h 127.0.0.1 -p 5432"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+    
+    volumes:
+      # To persist the data in the database we have a volume that persist after container deletion
+      # and copy the files from the container to the volume.
+      - db-volume:/var/lib/postgresql/data 
+  
+
+
+networks: # All the networks that connect our containers
+  app-network:
+    driver: bridge
+
+volumes: # All the named volumes needed to persist data after container deletion
+  db-volume:
