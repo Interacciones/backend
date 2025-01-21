@@ -7,7 +7,12 @@
     "test": "jest",
     "start": "node src/app.js",
     "dev": "nodemon src/index.js",
-    "migrate": "npx sequelize-cli db:migrate"
+    "migrate": "npx sequelize-cli db:migrate",
+    "migrate:undo": "npx sequelize-cli db:migrate:undo",
+    "seed": "npx sequelize-cli db:seed:all",
+    "seed:undo": "npx sequelize-cli db:seed:undo:all",
+    "db:create": "npx sequelize-cli db:create",
+    "db:drop": "npx sequelize-cli db:drop"
   },
   "keywords": [],
   "author": "",
