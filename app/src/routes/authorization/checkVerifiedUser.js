@@ -13,7 +13,7 @@ module.exports = async(ctx) =>{
     }
   };
 
-//  const checkUser = require('../../securityEndpoints/checkVerifiedUser');
+//  const checkUser = require('../../authorization/checkVerifiedUser');
 
       // Ejemplo de como hacer uso de la funcion checkUser
       // const tokenUser = await checkUser(ctx);
