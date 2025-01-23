@@ -6,7 +6,7 @@ dotenv.config();
 const router = new Router();
 
 const getAllTutorsProfiles = require('./routes/unprotectedRoutes/tutors/getAllTutors');
-const getUserProfile = require('./routes/unprotectedRoutes/users/getUserProfile');
+const getUserProfile = require('./routes/userProtectedRoutes/users/getUserProfile');
 const createUser = require('./routes/unprotectedRoutes/users/createUser');
 
 // Routes
