@@ -1,25 +1,48 @@
-const db = require('../../../models'); // Importar modelos desde la carpeta models
+const db = require('../../../models');
 
 module.exports = async (ctx) => {
   try {
-    const { name, lastName, email, token, isBanned } = ctx.request.body;
+    const { name, lastName, email, token } = ctx.request.body;
 
-    const newUser = await db.User.create({
-      name,
-      lastName,
-      email,
-      token,
-      isBanned: isBanned || false,
-    });
+    if (await isUserExists(email)) {
+      return sendErrorResponse(ctx, 409, 'User already exists');
+    }
 
-    ctx.status = 201;
-    ctx.body = {
-      message: 'User created successfully',
-      data: newUser.toJSON(),
-    };
+    const newUser = await createUser({ name, lastName, email, token });
+
+    return sendSuccessResponse(ctx, 201, 'User created successfully', newUser);
   } catch (error) {
     console.error(error);
-    ctx.status = 500;
-    ctx.body = { message: 'Failed to create user', error: error.message };
+    return sendErrorResponse(ctx, 500, 'Failed to create user', error.message);
   }
 };
+
+async function isUserExists(email) {
+  return await db.User.findOne({ where: { email } });
+}
+
+async function createUser({ name, lastName, email, token }) {
+  return await db.User.create({
+    name,
+    lastName,
+    email,
+    token,
+    isBanned: false,
+  });
+}
+
+function sendSuccessResponse(ctx, status, message, data) {
+  ctx.status = status;
+  ctx.body = {
+    message,
+    data: data.toJSON(),
+  };
+}
+
+function sendErrorResponse(ctx, status, message, error = null) {
+  ctx.status = status;
+  ctx.body = {
+    message,
+    error,
+  };
+}
