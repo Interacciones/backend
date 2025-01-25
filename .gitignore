@@ -1,3 +1,5 @@
-koa-app/node_modules
-koa-app/.env
+app/node_modules
+app/.env
 .env
+node_modules
+app/src/firebase/serviceAccount.json
