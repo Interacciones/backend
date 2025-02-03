@@ -6,8 +6,8 @@ module.exports = (sequelize, DataTypes) => {
       TutorProfile.hasMany(models.ReviewMessage, { foreignKey: 'tutorId' });
       TutorProfile.hasMany(models.ReportOfTutor, { foreignKey: 'tutorId' });
       TutorProfile.hasMany(models.TutorPriority, { foreignKey: 'idTutor' });
-      TutorProfile.hasMany(models.TutorSubjects, { foreignKey: 'idTutor' });
-      TutorProfile.hasMany(models.TutorCourses, { foreignKey: 'idTutor' });
+      TutorProfile.hasMany(models.TutorSubjects, { foreignKey: 'idTutor', as: 'Subjects' });
+      TutorProfile.hasMany(models.TutorCourses, { foreignKey: 'idTutor', as: 'Courses' });
       TutorProfile.belongsTo(models.User, { foreignKey: 'userId' });
     }
   }

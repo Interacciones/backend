@@ -8,6 +8,7 @@ const router = new Router();
 const getAllTutorsProfiles = require('./routes/unprotectedRoutes/tutors/getAllTutors');
 const getUserProfile = require('./routes/userProtectedRoutes/users/getUserProfile');
 const createUser = require('./routes/unprotectedRoutes/users/createUser');
+const getTutorInfo = require('./routes/unprotectedRoutes/tutors/getTutorInfo');
 
 // Routes
 
@@ -17,6 +18,7 @@ router.post('/users', createUser);
 
 // Tutors
 router.get('/tutors', getAllTutorsProfiles);
+router.get('/tutors/:id', getTutorInfo);
 
 
 
