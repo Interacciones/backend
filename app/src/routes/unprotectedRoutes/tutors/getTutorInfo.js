@@ -57,6 +57,7 @@ module.exports = async (ctx) => {
     }
 
     const tutorData = await getTutorById(tutorId);
+    const reviews = await getTutorReviews(tutorId);
 
     if (!tutorData) {
       ctx.status = 404;
@@ -69,8 +70,6 @@ module.exports = async (ctx) => {
       subjects: tutorData.Subjects.map(subject => subject.StudySubject.subject),
       courses: tutorData.Courses.map(course => course.subject),
     };
-
-    const reviews = await getTutorReviews(tutorId);
 
     delete responseData.Subjects;
     delete responseData.Courses;
