@@ -9,6 +9,8 @@ const checkVerifiedUser = require('../../authorization/checkVerifiedUser');
 module.exports = async(ctx) => {
     try {
         const userToken = await checkVerifiedUser(ctx);
+        const {description, priceDescription, photo} = ctx.request.body;
+
         if (!userToken) {
             ctx.body = {
                 message: 'User is not verified',
@@ -19,13 +21,13 @@ module.exports = async(ctx) => {
         const user = await db.User.findOne({
             where : {token: userToken.uid},
         });
-        const {description, priceDescription, photo, contactMail} = ctx.request.body;
+        
         const tutorProfile = await db.TutorProfile.create({
             userId: user.id,
             description,
             priceDescription,
             photo,
-            contactMail,
+            contactMail: user.email,
             isPublished: false,
         });
         ctx.body = {

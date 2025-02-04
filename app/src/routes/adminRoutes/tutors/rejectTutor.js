@@ -9,6 +9,8 @@ const checkAdmin = require('../../authorization/checkAdmin');
 module.exports = async(ctx) => {
     try {
         const tokenAdmin = await checkAdmin(ctx);
+        const {tutorId} = ctx.request.body;
+
         if (!tokenAdmin) {
             ctx.body = {
                 message: 'User is not admin',
@@ -16,10 +18,17 @@ module.exports = async(ctx) => {
             ctx.status = 401;
             return;
         }
-        const {tutorId} = ctx.request.body;
+        
         const tutorProfile = await db.TutorProfile.findByPk(tutorId);
-        tutorProfile.isPublished = false;
-        await tutorProfile.save();
+        if (!tutorProfile) {
+            throw new Error('Tutor profile does not exist');
+        }
+        
+        if (tutorProfile.isPublished){
+            throw new Error('Tutor is already accepted');
+        }
+        
+        await tutorProfile.destroy();
         ctx.body = {
             message: "Tutor rejected successfully",
         };

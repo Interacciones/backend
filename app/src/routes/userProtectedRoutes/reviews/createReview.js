@@ -9,6 +9,8 @@ const checkVerifiedUser = require('../../authorization/checkVerifiedUser');
 module.exports = async(ctx) => {
     try {
         const userToken = await checkVerifiedUser(ctx);
+        const {tutorId, rating, content} = ctx.request.body;
+
         if (!userToken) {
             ctx.body = {
                 message: 'User is not verified',
@@ -19,7 +21,12 @@ module.exports = async(ctx) => {
         const user = await db.User.findOne({
             where : {token: userToken.uid},
         });
-        const {tutorId, rating, content} = ctx.request.body;
+
+        const tutor = await db.TutorProfile.findByPk(tutorId);
+        if (user.id == tutor.userId) {
+            throw new Error('User cannot review themselves');
+        }
+        
         const review = await db.ReviewMessage.create({
             userId: user.id,
             tutorId,

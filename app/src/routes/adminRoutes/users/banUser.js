@@ -9,6 +9,8 @@ const checkAdmin = require('../../authorization/checkAdmin');
 module.exports = async(ctx) => {
     try {
         const tokenAdmin = await checkAdmin(ctx);
+        const {userId} = ctx.request.body;
+
         if (!tokenAdmin) {
             ctx.body = {
                 message: 'User is not admin',
@@ -16,10 +18,22 @@ module.exports = async(ctx) => {
             ctx.status = 401;
             return;
         }
-        const {userId} = ctx.request.body;
+        
         const userProfile = await db.User.findByPk(userId);
+        if (userProfile.isBanned) {
+            throw new Error('User is already banned');
+        }
+        
         userProfile.isBanned = true;
         await userProfile.save();
+
+        const tutorProfile = await db.TutorProfile.findOne({
+            where: {userId: userProfile.id},
+        });
+        if (tutorProfile) {
+            await tutorProfile.destroy();
+        }
+
         ctx.body = {
             message: "User banned successfully",
         };
