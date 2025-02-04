@@ -31,6 +31,19 @@ const getTutorById = async (tutorId) => {
   }
 };
 
+// Solo se llaman a las primeras 3 reviews
+const getTutorReviews = async (tutorId) => {
+  try {
+    return await db.ReviewMessage.findAll({
+      where: { tutorId },
+      attributes: ['id', 'rating', 'content'],
+      limit: 3,
+    });
+  } catch (error) {
+    console.error('Error fetching tutor reviews:', error);
+    throw error;
+  }
+};
 
 
 module.exports = async (ctx) => {
@@ -57,13 +70,18 @@ module.exports = async (ctx) => {
       courses: tutorData.Courses.map(course => course.subject),
     };
 
+    const reviews = await getTutorReviews(tutorId);
+
     delete responseData.Subjects;
     delete responseData.Courses;
 
     ctx.status = 200;
     ctx.body = {
       message: 'Tutor fetched successfully',
-      data: responseData,
+      data: {
+        ...responseData,
+        reviews,
+      },
     };
   } catch (error) {
     console.error(error);
