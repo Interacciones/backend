@@ -27,7 +27,8 @@ module.exports = {
       },
       contactMail: {
         allowNull: false,
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        unique: true
       },
       isPublished: {
         defaultValue: false,
