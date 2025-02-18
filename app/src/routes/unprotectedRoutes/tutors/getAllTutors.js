@@ -4,7 +4,7 @@ module.exports = async (ctx) => {
   try {
     const getTutorProfiles = async () => {
       return await db.TutorProfile.findAll({
-        attributes: ['id', 'description', 'photo', 'priceDescription', 'contactMail', 'isPublished'],
+        attributes: ['id', 'description', 'photo', 'priceDescription', 'contactNumber', 'isPublished'],
       });
     };
 

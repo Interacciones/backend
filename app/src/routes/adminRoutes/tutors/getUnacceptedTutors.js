@@ -19,7 +19,7 @@ module.exports = async (ctx) => {
 
         const unacceptedTutors = await db.TutorProfile.findAll({
             where : {isPublished: false},
-            attributes: ['id', 'userId', 'description', 'photo', 'priceDescription', 'contactMail', 'isPublished'],
+            attributes: ['id', 'userId', 'description', 'photo', 'priceDescription', 'contactNumber', 'isPublished'],
         });
 
         ctx.body = {

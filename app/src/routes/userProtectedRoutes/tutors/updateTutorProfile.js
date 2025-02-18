@@ -14,7 +14,7 @@ module.exports = async(ctx) => {
         const user = await db.User.findOne({
             where : {token: userToken.uid},
         });
-        const {description, priceDescription, photo, contactMail} = ctx.request.body;
+        const {description, priceDescription, photo, contactNumber} = ctx.request.body;
         const tutorProfile = await db.TutorProfile.findOne({
             where: {userId: user.id},
         });
@@ -22,7 +22,7 @@ module.exports = async(ctx) => {
         tutorProfile.description = description || tutorProfile.description;
         tutorProfile.priceDescription = priceDescription || tutorProfile.priceDescription;
         tutorProfile.photo = photo || tutorProfile.photo
-        tutorProfile.contactMail = contactMail || tutorProfile.contactMail;
+        tutorProfile.contactNumber = contactNumber || tutorProfile.contactNumber;
 
         await tutorProfile.save();
         ctx.body = {

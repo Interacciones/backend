@@ -26,7 +26,7 @@ module.exports = {
       photo: {
         type: Sequelize.STRING
       },
-      contactMail: {
+      contactNumber: {
         allowNull: false,
         type: Sequelize.STRING,
         unique: true

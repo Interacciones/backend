@@ -17,28 +17,29 @@ async function uploadProfilePicture(userId, photo) {
     }
 }
 
-async function createTutorProfile(user, description, priceDescription, photoLink) {
+async function createTutorProfile(user, description, priceDescription, photoLink, contactNumber) {
     return await db.TutorProfile.create({
         userId: user.id,
         description,
         priceDescription,
         photo: photoLink,
-        contactMail: user.email,
+        contactNumber,
         isPublished: false,
     });
 }
 
 async function createTutorCourses(idTutor, courses) {
-    for (const course of courses) {
+    const uniqueCourses = [...new Set(courses.map(course => course.course))];
+    for (const course of uniqueCourses) {
         await db.TutorCourses.create({
             idTutor,
-            subject: course.course,
+            subject: course,
         });
     }
 }
 
 async function createTutorSubjects(idTutor, subjects) {
-    const uniqueSubjects = [...new Set(subjects.map(subject => subject.subject))]; // Remove duplicates
+    const uniqueSubjects = [...new Set(subjects.map(subject => subject.subject))];
     for (const subject of uniqueSubjects) {
         const studySubject = await db.StudySubjects.findOne({
             where: { subject },
@@ -61,14 +62,23 @@ module.exports = async (ctx) => {
             return;
         }
 
-        const { description, priceDescription, courses, contactNumber, photo } = ctx.request.body;
+        const { description, priceDescription, courses, contactNumber } = ctx.request.body;
         const parsedCourses = JSON.parse(courses);
+        const photo = ctx.request.files.photo;
 
         const user = await db.User.findOne({ where: { token: userToken.uid } });
 
         const photoLink = await uploadProfilePicture(user.id, photo);
 
-        const tutorProfile = await createTutorProfile(user, description, priceDescription, photoLink);
+        // Hacer un pront de todas las cosas del request body y del photolink
+        console.log('description', description);
+        console.log('priceDescription', priceDescription);
+        console.log('parsedCourses', parsedCourses);
+        console.log('photoLink', photoLink);
+        console.log('contactNumber', contactNumber);
+
+
+        const tutorProfile = await createTutorProfile(user, description, priceDescription, photoLink, contactNumber);
 
         await createTutorCourses(tutorProfile.id, parsedCourses);
         await createTutorSubjects(tutorProfile.id, parsedCourses);

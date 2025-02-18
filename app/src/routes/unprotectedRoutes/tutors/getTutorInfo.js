@@ -4,7 +4,7 @@ const getTutorById = async (tutorId) => {
   try {
     return await db.TutorProfile.findOne({
       where: { id: tutorId },
-      attributes: ['id', 'description', 'photo', 'priceDescription', 'contactMail', 'isPublished'],
+      attributes: ['id', 'description', 'photo', 'priceDescription', 'contactNumber', 'isPublished'],
       include: [
         {
           model: db.TutorSubjects,

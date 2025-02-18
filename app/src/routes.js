@@ -39,7 +39,7 @@ router.patch('/users/unban', unbanUser);
 router.get('/tutors', getAllTutorsProfiles);
 router.get('/tutors/:id', getTutorInfo);
 router.patch('/tutors/accept', acceptTutor);
-router.get('/tutors/unaccepted', getUnacceptedTutors);
+router.get('/unaccepted-tutors', getUnacceptedTutors);
 router.patch('/tutors/reject', rejectTutor);
 router.post('/tutors', createTutor);
 router.get('/tutors-self', getOwnProfile);
