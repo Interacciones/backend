@@ -24,6 +24,8 @@ const createTutor = require('./routes/userProtectedRoutes/tutors/createTutor');
 const getOwnProfile = require('./routes/userProtectedRoutes/tutors/getOwnProfile');
 const updateTutorProfile = require('./routes/userProtectedRoutes/tutors/updateTutorProfile');
 
+const getAllStudySubjects = require('./routes/unprotectedRoutes/studySubjects/getAllSubjects');
+
 // Routes
 
 // Users
@@ -40,11 +42,14 @@ router.patch('/tutors/accept', acceptTutor);
 router.get('/tutors/unaccepted', getUnacceptedTutors);
 router.patch('/tutors/reject', rejectTutor);
 router.post('/tutors', createTutor);
-router.get('/tutors/self', getOwnProfile);
+router.get('/tutors-self', getOwnProfile);
 router.patch('/tutors', updateTutorProfile);
 
 // Reviews
 router.post('/reviews', createReview);
+
+// Study Subjects
+router.get('/subjects', getAllStudySubjects);
 
 
 module.exports = router;
