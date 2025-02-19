@@ -43,7 +43,7 @@ router.get('/unaccepted-tutors', getUnacceptedTutors);
 router.patch('/tutors/reject', rejectTutor);
 router.post('/tutors', createTutor);
 router.get('/tutors-self', getOwnProfile);
-router.patch('/tutors', updateTutorProfile);
+router.patch('/own-tutor', updateTutorProfile);
 
 // Reviews
 router.post('/reviews', createReview);

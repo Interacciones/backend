@@ -12,19 +12,55 @@ module.exports = async(ctx) => {
             return;
         }
         const user = await db.User.findOne({
-            where : {token: userToken.uid},
+            where: { token: userToken.uid },
         });
-        const {description, priceDescription, photo, contactNumber} = ctx.request.body;
+
+        const { description, courses, subjects, photo, contactNumber, priceDescription } = ctx.request.body;
+
+        console.log('Description:', description);
+        console.log('Courses:', courses);
+        console.log('Subjects:', subjects);
+        console.log('Photo:', photo);
+        console.log('Contact Number:', contactNumber);
+        console.log('Price Description:', priceDescription);
+
         const tutorProfile = await db.TutorProfile.findOne({
-            where: {userId: user.id},
+            where: { userId: user.id },
         });
 
         tutorProfile.description = description || tutorProfile.description;
         tutorProfile.priceDescription = priceDescription || tutorProfile.priceDescription;
-        tutorProfile.photo = photo || tutorProfile.photo
+        tutorProfile.photo = photo || tutorProfile.photo;
         tutorProfile.contactNumber = contactNumber || tutorProfile.contactNumber;
+        tutorProfile.isPublished = false;
 
         await tutorProfile.save();
+
+        // Update courses
+        const parsedCourses = JSON.parse(courses);
+        await db.TutorCourses.destroy({ where: { idTutor: tutorProfile.id } });
+        for (const course of parsedCourses) {
+            await db.TutorCourses.create({
+                idTutor: tutorProfile.id,
+                subject: course,
+            });
+        }
+
+        // Update subjects
+        const parsedSubjects = JSON.parse(subjects);
+        await db.TutorSubjects.destroy({ where: { idTutor: tutorProfile.id } });
+        for (const subject of parsedSubjects) {
+            const studySubject = await db.StudySubjects.findOne({
+                where: { subject },
+            });
+            if (studySubject) {
+                await db.TutorSubjects.create({
+                    idTutor: tutorProfile.id,
+                    idSubject: studySubject.id,
+                });
+            }
+        }
+
         ctx.body = {
             message: 'Tutor profile updated successfully',
             data: tutorProfile,
@@ -38,4 +74,4 @@ module.exports = async(ctx) => {
         };
         ctx.status = 500;
     }
-}
+};
