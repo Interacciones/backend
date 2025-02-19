@@ -8,12 +8,12 @@ const getTutorById = async (tutorId) => {
       include: [
         {
           model: db.TutorSubjects,
-          as: 'Subjects', 
+          as: 'Subjects',
           attributes: ['id'],
           include: [
             {
               model: db.StudySubjects,
-              as: 'StudySubject', 
+              as: 'StudySubject',
               attributes: ['subject'],
             },
           ],
@@ -22,6 +22,11 @@ const getTutorById = async (tutorId) => {
           model: db.TutorCourses,
           as: 'Courses',
           attributes: ['id', 'subject'],
+        },
+        {
+          model: db.User,
+          as: 'User',
+          attributes: ['name', 'lastName', 'email'],
         },
       ],
     });
@@ -45,7 +50,6 @@ const getTutorReviews = async (tutorId) => {
   }
 };
 
-
 module.exports = async (ctx) => {
   try {
     const tutorId = ctx.params.id;
@@ -67,12 +71,16 @@ module.exports = async (ctx) => {
 
     const responseData = {
       ...tutorData.toJSON(),
+      name: tutorData.User.name,
+      lastName: tutorData.User.lastName,
+      email: tutorData.User.email,
       subjects: tutorData.Subjects.map(subject => subject.StudySubject.subject),
       courses: tutorData.Courses.map(course => course.subject),
     };
 
     delete responseData.Subjects;
     delete responseData.Courses;
+    delete responseData.User;
 
     ctx.status = 200;
     ctx.body = {

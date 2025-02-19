@@ -3,6 +3,11 @@ const db = require('../../../models');
 async function getTutorProfiles() {
   return await db.TutorProfile.findAll({
     attributes: ['id', 'description', 'photo', 'priceDescription', 'contactNumber', 'isPublished'],
+    include: {
+      model: db.User,
+      as: 'User',
+      attributes: ['name', 'lastName'],
+    },
   });
 }
 
@@ -31,15 +36,21 @@ async function getTutorProfilesWithSubjectsAndCourses() {
     profiles.map(async (profile) => {
       const subjects = await getSubjectsForTutor(profile.id);
       const courses = await getCoursesForTutor(profile.id);
+      const profileData = profile.toJSON();
       return {
-        ...profile.toJSON(),
+        ...profileData,
+        name: profileData.User.name,
+        lastName: profileData.User.lastName,
         subjects: subjects.map((subject) => subject.StudySubject.subject),
         courses: courses.map((course) => course.subject),
       };
     })
   );
 
-  return profilesWithDetails;
+  return profilesWithDetails.map(profile => {
+    const { User, ...rest } = profile;
+    return rest;
+  });
 }
 
 module.exports = async (ctx) => {
