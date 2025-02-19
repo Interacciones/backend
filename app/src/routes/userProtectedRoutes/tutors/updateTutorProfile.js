@@ -1,65 +1,71 @@
 const db = require('../../../models');
 const checkVerifiedUser = require('../../authorization/checkVerifiedUser');
 
-module.exports = async(ctx) => {
+async function updateTutorProfileDetails(tutorProfile, details) {
+    tutorProfile.description = details.description || tutorProfile.description;
+    tutorProfile.priceDescription = details.priceDescription || tutorProfile.priceDescription;
+    tutorProfile.photo = details.photo || tutorProfile.photo;
+    tutorProfile.contactNumber = details.contactNumber || tutorProfile.contactNumber;
+    tutorProfile.isPublished = false;
+
+    await tutorProfile.save();
+}
+
+async function updateTutorCourses(tutorId, courses) {
+    const parsedCourses = JSON.parse(courses);
+    await db.TutorCourses.destroy({ where: { idTutor: tutorId } });
+    for (const course of parsedCourses) {
+        await db.TutorCourses.create({
+            idTutor: tutorId,
+            subject: course,
+        });
+    }
+}
+
+async function updateTutorSubjects(tutorId, subjects) {
+    const parsedSubjects = JSON.parse(subjects);
+    await db.TutorSubjects.destroy({ where: { idTutor: tutorId } });
+    for (const subject of parsedSubjects) {
+        const studySubject = await db.StudySubjects.findOne({
+            where: { subject },
+        });
+        if (studySubject) {
+            await db.TutorSubjects.create({
+                idTutor: tutorId,
+                idSubject: studySubject.id,
+            });
+        }
+    }
+}
+
+module.exports = async (ctx) => {
     try {
         const userToken = await checkVerifiedUser(ctx);
         if (!userToken) {
-            ctx.body = {
-                message: 'User is not verified',
-            };
+            ctx.body = { message: 'User is not verified' };
             ctx.status = 401;
             return;
         }
-        const user = await db.User.findOne({
-            where: { token: userToken.uid },
-        });
+
+        const user = await db.User.findOne({ where: { token: userToken.uid } });
+        if (!user) {
+            ctx.body = { message: 'User not found' };
+            ctx.status = 404;
+            return;
+        }
 
         const { description, courses, subjects, photo, contactNumber, priceDescription } = ctx.request.body;
 
-        console.log('Description:', description);
-        console.log('Courses:', courses);
-        console.log('Subjects:', subjects);
-        console.log('Photo:', photo);
-        console.log('Contact Number:', contactNumber);
-        console.log('Price Description:', priceDescription);
-
-        const tutorProfile = await db.TutorProfile.findOne({
-            where: { userId: user.id },
-        });
-
-        tutorProfile.description = description || tutorProfile.description;
-        tutorProfile.priceDescription = priceDescription || tutorProfile.priceDescription;
-        tutorProfile.photo = photo || tutorProfile.photo;
-        tutorProfile.contactNumber = contactNumber || tutorProfile.contactNumber;
-        tutorProfile.isPublished = false;
-
-        await tutorProfile.save();
-
-        // Update courses
-        const parsedCourses = JSON.parse(courses);
-        await db.TutorCourses.destroy({ where: { idTutor: tutorProfile.id } });
-        for (const course of parsedCourses) {
-            await db.TutorCourses.create({
-                idTutor: tutorProfile.id,
-                subject: course,
-            });
+        const tutorProfile = await db.TutorProfile.findOne({ where: { userId: user.id } });
+        if (!tutorProfile) {
+            ctx.body = { message: 'Tutor profile not found' };
+            ctx.status = 404;
+            return;
         }
 
-        // Update subjects
-        const parsedSubjects = JSON.parse(subjects);
-        await db.TutorSubjects.destroy({ where: { idTutor: tutorProfile.id } });
-        for (const subject of parsedSubjects) {
-            const studySubject = await db.StudySubjects.findOne({
-                where: { subject },
-            });
-            if (studySubject) {
-                await db.TutorSubjects.create({
-                    idTutor: tutorProfile.id,
-                    idSubject: studySubject.id,
-                });
-            }
-        }
+        await updateTutorProfileDetails(tutorProfile, { description, priceDescription, photo, contactNumber });
+        await updateTutorCourses(tutorProfile.id, courses);
+        await updateTutorSubjects(tutorProfile.id, subjects);
 
         ctx.body = {
             message: 'Tutor profile updated successfully',
