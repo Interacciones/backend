@@ -4,7 +4,7 @@ const { uploadFile } = require('../../../services/s3');
 
 async function uploadProfilePicture(userId, photo) {
     if (!photo) {
-        return "https://interac-ciones.s3.amazonaws.com/default.jpg"; // DEFAULT;
+        return "https://interac-ciones.s3.amazonaws.com/default.jpg";
     }
 
     try {
@@ -13,7 +13,7 @@ async function uploadProfilePicture(userId, photo) {
         return imagePath;
     } catch (error) {
         console.error('Error uploading Profile Picture: ', error);
-        return "https://interac-ciones.s3.amazonaws.com/default.jpg"; // DEFAULT;
+        return "https://interac-ciones.s3.amazonaws.com/default.jpg";
     }
 }
 
