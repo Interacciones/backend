@@ -23,6 +23,8 @@ const createTutor = require('./routes/userProtectedRoutes/tutors/createTutor');
 const getOwnProfile = require('./routes/userProtectedRoutes/tutors/getOwnProfile');
 const updateTutorProfile = require('./routes/userProtectedRoutes/tutors/updateTutorProfile');
 
+const sendEmail = require('./routes/adminRoutes/email/sendEmail');
+
 // Routes
 
 // Users
@@ -44,5 +46,7 @@ router.patch('/tutors', updateTutorProfile);
 // Reviews
 router.post('/reviews', createReview);
 
+// Send Email
+router.post("/send-email", sendEmail);
 
 module.exports = router;
