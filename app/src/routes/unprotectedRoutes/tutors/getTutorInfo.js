@@ -28,6 +28,10 @@ const getTutorById = async (tutorId) => {
           as: 'User',
           attributes: ['name', 'lastName', 'email'],
         },
+        {
+          model: db.ReviewsPerTutor,
+          attributes: ['avgRating', 'reviewAmount', 'oneStarReviews', 'twoStarReviews', 'threeStarReviews', 'fourStarReviews', 'fiveStarReviews'],
+        },
       ],
     });
   } catch (error) {
@@ -36,13 +40,11 @@ const getTutorById = async (tutorId) => {
   }
 };
 
-// Solo se llaman a las primeras 3 reviews
 const getTutorReviews = async (tutorId) => {
   try {
     return await db.ReviewMessage.findAll({
       where: { tutorId },
-      attributes: ['id', 'rating', 'content'],
-      // limit: 3,  // CAMBIAR
+      attributes: ['id', 'rating', 'content', 'createdAt'],
     });
   } catch (error) {
     console.error('Error fetching tutor reviews:', error);
@@ -76,11 +78,19 @@ module.exports = async (ctx) => {
       email: tutorData.User.email,
       subjects: tutorData.Subjects.map(subject => subject.StudySubject.subject),
       courses: tutorData.Courses.map(course => course.subject),
+      avgRating: tutorData.ReviewsPerTutor ? tutorData.ReviewsPerTutor.avgRating : null,
+      reviewAmount: tutorData.ReviewsPerTutor ? tutorData.ReviewsPerTutor.reviewAmount : null,
+      oneStarReviews: tutorData.ReviewsPerTutor ? tutorData.ReviewsPerTutor.oneStarReviews : null,
+      twoStarReviews: tutorData.ReviewsPerTutor ? tutorData.ReviewsPerTutor.twoStarReviews : null,
+      threeStarReviews: tutorData.ReviewsPerTutor ? tutorData.ReviewsPerTutor.threeStarReviews : null,
+      fourStarReviews: tutorData.ReviewsPerTutor ? tutorData.ReviewsPerTutor.fourStarReviews : null,
+      fiveStarReviews: tutorData.ReviewsPerTutor ? tutorData.ReviewsPerTutor.fiveStarReviews : null,
     };
 
     delete responseData.Subjects;
     delete responseData.Courses;
     delete responseData.User;
+    delete responseData.ReviewsPerTutor;
 
     ctx.status = 200;
     ctx.body = {
