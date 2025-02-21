@@ -1,15 +1,11 @@
-/*
-Para esta ruta hacer:
-Pedir los parametros que se piden de la review y guardarlos en el modelo de review. Pedir el token del usuario que será único y con esto buscar el usuario
-*/
-
 const db = require('../../../models');
 const checkVerifiedUser = require('../../authorization/checkVerifiedUser');
+const updateReviewsPerTutor = require('../../auxilaryFunctions/ReviewsPerTutor/updateTable');
 
 module.exports = async(ctx) => {
     try {
         const userToken = await checkVerifiedUser(ctx);
-        const {tutorId, rating, content} = ctx.request.body;
+        const { tutorId, rating, content } = ctx.request.body;
 
         if (!userToken) {
             ctx.body = {
@@ -18,21 +14,25 @@ module.exports = async(ctx) => {
             ctx.status = 401;
             return;
         }
+
         const user = await db.User.findOne({
-            where : {token: userToken.uid},
+            where: { token: userToken.uid },
         });
 
         const tutor = await db.TutorProfile.findByPk(tutorId);
         if (user.id == tutor.userId) {
             throw new Error('User cannot review themselves');
         }
-        
+
         const review = await db.ReviewMessage.create({
             userId: user.id,
             tutorId,
             rating,
             content,
         });
+
+        await updateReviewsPerTutor(tutorId, rating, true);
+
         ctx.body = {
             message: 'Review created successfully',
             data: review,
@@ -46,4 +46,4 @@ module.exports = async(ctx) => {
         };
         ctx.status = 500;
     }
-}
+};

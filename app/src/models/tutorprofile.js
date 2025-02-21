@@ -9,6 +9,7 @@ module.exports = (sequelize, DataTypes) => {
       TutorProfile.hasMany(models.TutorSubjects, { foreignKey: 'idTutor', as: 'Subjects' });
       TutorProfile.hasMany(models.TutorCourses, { foreignKey: 'idTutor', as: 'Courses' });
       TutorProfile.belongsTo(models.User, { foreignKey: 'userId' });
+      TutorProfile.hasOne(models.ReviewsPerTutor, { foreignKey: 'tutorId' });
     }
   }
   TutorProfile.init({

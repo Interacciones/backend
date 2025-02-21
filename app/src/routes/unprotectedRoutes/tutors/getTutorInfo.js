@@ -42,7 +42,7 @@ const getTutorReviews = async (tutorId) => {
     return await db.ReviewMessage.findAll({
       where: { tutorId },
       attributes: ['id', 'rating', 'content'],
-      limit: 3,
+      // limit: 3,  // CAMBIAR
     });
   } catch (error) {
     console.error('Error fetching tutor reviews:', error);
