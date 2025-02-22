@@ -26,6 +26,13 @@ const updateTutorProfile = require('./routes/userProtectedRoutes/tutors/updateTu
 
 const getAllStudySubjects = require('./routes/unprotectedRoutes/studySubjects/getAllSubjects');
 
+const checkAdminStatus = require('./routes/adminRoutes/admin/checkAdminStatus');
+
+const createReportOfTutor = require('./routes/userProtectedRoutes/reports/createTutorReport');
+const createReportOfReview = require('./routes/userProtectedRoutes/reports/createReviewReport');
+const getUnreviewedTutorReports = require('./routes/adminRoutes/reports/getUnreviewedTutorReports');
+const getUnreviewedReviewReports = require('./routes/adminRoutes/reports/getUnreviewedReviewsReports');
+
 // Routes
 
 // Users
@@ -51,5 +58,17 @@ router.post('/reviews', createReview);
 // Study Subjects
 router.get('/subjects', getAllStudySubjects);
 
+// Admin
+router.get('/check-admin', checkAdminStatus);
+
+// Reviews Reports
+router.post('/reports/review', createReportOfReview);
+
+// Tutors Reports
+router.post('/reports/tutor', createReportOfTutor);
+
+// Admin Report History
+router.get('/reports/review', getUnreviewedReviewReports);
+router.get('/reports/tutor', getUnreviewedTutorReports);
 
 module.exports = router;
