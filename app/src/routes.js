@@ -33,6 +33,8 @@ const createReportOfReview = require('./routes/userProtectedRoutes/reports/creat
 const getUnreviewedTutorReports = require('./routes/adminRoutes/reports/getUnreviewedTutorReports');
 const getUnreviewedReviewReports = require('./routes/adminRoutes/reports/getUnreviewedReviewsReports');
 
+const getAdminStats = require('./routes/adminRoutes/stats/getAdminStats');
+
 // Routes
 
 // Users
@@ -45,9 +47,9 @@ router.patch('/users/unban', unbanUser);
 // Tutors
 router.get('/tutors', getAllTutorsProfiles);
 router.get('/tutors/:id', getTutorInfo);
-router.patch('/tutors/accept', acceptTutor);
+router.patch('/tutors/accept', acceptTutor); // Ahora en el front se está enviando el correo /:email
 router.get('/unaccepted-tutors', getUnacceptedTutors);
-router.patch('/tutors/reject', rejectTutor);
+router.patch('/tutors/reject', rejectTutor); // Ahora en el front se está enviando el correo /:email
 router.post('/tutors', createTutor);
 router.get('/tutors-self', getOwnProfile);
 router.patch('/own-tutor', updateTutorProfile);
@@ -60,6 +62,7 @@ router.get('/subjects', getAllStudySubjects);
 
 // Admin
 router.get('/check-admin', checkAdminStatus);
+router.get('/admin-stats', getAdminStats);
 
 // Reviews Reports
 router.post('/reports/review', createReportOfReview);

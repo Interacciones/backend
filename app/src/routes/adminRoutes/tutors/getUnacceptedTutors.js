@@ -1,10 +1,61 @@
-/*
-Para esta ruta hacer:
-Obtener todos los tutores que no han sido aceptados
-*/
-
 const db = require('../../../models');
 const checkAdmin = require('../../authorization/checkAdmin');
+
+async function getUnacceptedTutorProfiles() {
+    return await db.TutorProfile.findAll({
+        where: { isPublished: false },
+        attributes: ['id', 'description', 'photo', 'priceDescription', 'contactNumber', 'isPublished'],
+        include: [
+            {
+                model: db.User,
+                as: 'User',
+                attributes: ['name', 'lastName'],
+            }
+        ],
+    });
+}
+
+async function getSubjectsForTutor(tutorId) {
+    return await db.TutorSubjects.findAll({
+        where: { idTutor: tutorId },
+        include: {
+            model: db.StudySubjects,
+            as: 'StudySubject',
+            attributes: ['subject'],
+        },
+    });
+}
+
+async function getCoursesForTutor(tutorId) {
+    return await db.TutorCourses.findAll({
+        where: { idTutor: tutorId },
+        attributes: ['subject'],
+    });
+}
+
+async function getUnacceptedTutorProfilesWithDetails() {
+    const profiles = await getUnacceptedTutorProfiles();
+
+    const profilesWithDetails = await Promise.all(
+        profiles.map(async (profile) => {
+            const subjects = await getSubjectsForTutor(profile.id);
+            const courses = await getCoursesForTutor(profile.id);
+            const profileData = profile.toJSON();
+            return {
+                ...profileData,
+                name: profileData.User.name,
+                lastName: profileData.User.lastName,
+                subjects: subjects.map((subject) => subject.StudySubject.subject),
+                courses: courses.map((course) => course.subject),
+            };
+        })
+    );
+
+    return profilesWithDetails.map(profile => {
+        const { User, ReviewsPerTutor, ...rest } = profile;
+        return rest;
+    });
+}
 
 module.exports = async (ctx) => {
     try {
@@ -17,14 +68,11 @@ module.exports = async (ctx) => {
             return;
         }
 
-        const unacceptedTutors = await db.TutorProfile.findAll({
-            where : {isPublished: false},
-            attributes: ['id', 'userId', 'description', 'photo', 'priceDescription', 'contactNumber', 'isPublished'],
-        });
+        const unacceptedTutorProfiles = await getUnacceptedTutorProfilesWithDetails();
 
         ctx.body = {
             message: 'Unaccepted tutor profiles fetched successfully',
-            data: unacceptedTutors,
+            data: unacceptedTutorProfiles,
         };
         ctx.status = 200;
 

@@ -1,7 +1,9 @@
+const { where } = require('sequelize');
 const db = require('../../../models');
 
 async function getTutorProfiles() {
   return await db.TutorProfile.findAll({
+    where: { isPublished: true },
     attributes: ['id', 'description', 'photo', 'priceDescription', 'contactNumber', 'isPublished'],
     include: [
       {
