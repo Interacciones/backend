@@ -16,6 +16,13 @@ async function getPendingTutorReports() {
                 model: db.TutorProfile,
                 as: 'TutorProfile',
                 attributes: ['description', 'photo', 'priceDescription', 'contactNumber'],
+                include: [
+                    {
+                        model: db.User,
+                        as: 'User',
+                        attributes: ['name', 'lastName', 'email'],
+                    },
+                ],
             },
         ],
     });
@@ -30,6 +37,9 @@ function formatPendingTutorReports(reports) {
             email: report.User.email,
         },
         tutor: {
+            name: report.TutorProfile.User.name,
+            lastName: report.TutorProfile.User.lastName,
+            email: report.TutorProfile.User.email,
             description: report.TutorProfile.description,
             photo: report.TutorProfile.photo,
             priceDescription: report.TutorProfile.priceDescription,

@@ -9,7 +9,7 @@ async function getUnacceptedTutorProfiles() {
             {
                 model: db.User,
                 as: 'User',
-                attributes: ['name', 'lastName'],
+                attributes: ['name', 'lastName', 'email'],
             }
         ],
     });
@@ -45,6 +45,7 @@ async function getUnacceptedTutorProfilesWithDetails() {
                 ...profileData,
                 name: profileData.User.name,
                 lastName: profileData.User.lastName,
+                email: profileData.User.email,
                 subjects: subjects.map((subject) => subject.StudySubject.subject),
                 courses: courses.map((course) => course.subject),
             };

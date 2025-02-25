@@ -16,6 +16,20 @@ async function getPendingReviewReports() {
                 model: db.ReviewMessage,
                 as: 'ReviewMessage',
                 attributes: ['rating', 'content', 'createdAt'],
+                include: [
+                    {
+                        model: db.TutorProfile,
+                        as: 'TutorProfile',
+                        attributes: ['id'],
+                        include: [
+                            {
+                                model: db.User,
+                                as: 'User',
+                                attributes: ['name', 'lastName'],
+                            },
+                        ],
+                    },
+                ],
             },
         ],
     });
@@ -33,6 +47,10 @@ function formatPendingReviewReports(reports) {
             rating: report.ReviewMessage.rating,
             content: report.ReviewMessage.content,
             createdAt: report.ReviewMessage.createdAt,
+        },
+        tutor: {
+            name: report.ReviewMessage.TutorProfile.User.name,
+            lastName: report.ReviewMessage.TutorProfile.User.lastName,
         },
         description: report.description,
         status: report.status,

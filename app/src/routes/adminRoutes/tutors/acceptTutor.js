@@ -16,8 +16,15 @@ module.exports = async(ctx) => {
             ctx.status = 401;
             return;
         }
-        const {tutorId} = ctx.request.body;
+        const tutorId = ctx.params.id;
         const tutorProfile = await db.TutorProfile.findByPk(tutorId);
+        if (!tutorProfile) {
+            ctx.body = {
+                message: 'Tutor not found',
+            };
+            ctx.status = 404;
+            return;
+        }
         tutorProfile.isPublished = true;
         await tutorProfile.save();
         ctx.body = {

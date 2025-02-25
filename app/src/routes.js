@@ -47,9 +47,9 @@ router.patch('/users/unban', unbanUser);
 // Tutors
 router.get('/tutors', getAllTutorsProfiles);
 router.get('/tutors/:id', getTutorInfo);
-router.patch('/tutors/accept', acceptTutor); // Ahora en el front se está enviando el correo /:email
+router.patch('/tutors/accept/:id', acceptTutor); // Ahora en el front se está enviando el correo /:id
 router.get('/unaccepted-tutors', getUnacceptedTutors);
-router.patch('/tutors/reject', rejectTutor); // Ahora en el front se está enviando el correo /:email
+router.patch('/tutors/reject/:id', rejectTutor); // Ahora en el front se está enviando el correo /:id
 router.post('/tutors', createTutor);
 router.get('/tutors-self', getOwnProfile);
 router.patch('/own-tutor', updateTutorProfile);
