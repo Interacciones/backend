@@ -1,6 +1,7 @@
 const db = require('../../../models');
 const checkVerifiedUser = require('../../authorization/checkVerifiedUser');
 const updateReviewsPerTutor = require('../../auxilaryFunctions/ReviewsPerTutor/updateTable');
+const createInitialReviewsPerTutorRecord = require('../../auxilaryFunctions/ReviewsPerTutor/createInitialRecord');
 
 module.exports = async(ctx) => {
     try {
@@ -31,6 +32,16 @@ module.exports = async(ctx) => {
             content,
         });
 
+        // Check if ReviewsPerTutor record exists, if not create it
+        const reviewsPerTutor = await db.ReviewsPerTutor.findOne({
+            where: { tutorId },
+        });
+
+        if (!reviewsPerTutor) {
+            await createInitialReviewsPerTutorRecord(tutorId);
+        }
+
+        // Update the ReviewsPerTutor table
         await updateReviewsPerTutor(tutorId, rating, true);
 
         ctx.body = {
