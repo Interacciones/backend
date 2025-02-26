@@ -7,7 +7,9 @@ const router = new Router();
 
 const getAllTutorsProfiles = require('./routes/unprotectedRoutes/tutors/getAllTutors');
 const getUserProfile = require('./routes/userProtectedRoutes/users/getUserProfile');
+const getOwnUserProfile = require('./routes/userProtectedRoutes/users/getOwnUserProfile');
 const createUser = require('./routes/unprotectedRoutes/users/createUser');
+const createAdmin = require('./routes/unprotectedRoutes/users/createAdmin');
 const getTutorInfo = require('./routes/unprotectedRoutes/tutors/getTutorInfo');
 
 const acceptTutor = require('./routes/adminRoutes/tutors/acceptTutor');
@@ -39,6 +41,7 @@ const getAdminStats = require('./routes/adminRoutes/stats/getAdminStats');
 
 // Users
 router.get('/users/:id', getUserProfile);
+router.get('/users-self', getOwnUserProfile);
 router.post('/users', createUser);
 router.patch('/users/ban', banUser);
 router.get('/users', getAllUsers);
