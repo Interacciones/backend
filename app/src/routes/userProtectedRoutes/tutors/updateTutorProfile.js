@@ -4,7 +4,7 @@ const { uploadFile } = require('../../../services/s3');
 
 async function uploadProfilePicture(userId, photo) {
     if (!photo) {
-        return "https://interac-ciones.s3.amazonaws.com/default.jpg";
+        return null;
     }
 
     try {
@@ -87,7 +87,7 @@ module.exports = async (ctx) => {
             return;
         }
 
-        await updateTutorProfileDetails(tutorProfile, { description, priceDescription, photo: photoLink, contactNumber });
+        await updateTutorProfileDetails(tutorProfile, { description, priceDescription, photo: (photoLink || tutorProfile.photo), contactNumber });
         await updateTutorCourses(tutorProfile.id, courses);
         await updateTutorSubjects(tutorProfile.id, subjects);
 
