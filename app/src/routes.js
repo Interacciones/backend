@@ -8,6 +8,7 @@ const router = new Router();
 const getAllTutorsProfiles = require('./routes/unprotectedRoutes/tutors/getAllTutors');
 const getUserProfile = require('./routes/userProtectedRoutes/users/getUserProfile');
 const createUser = require('./routes/unprotectedRoutes/users/createUser');
+const getTutorInfo = require('./routes/unprotectedRoutes/tutors/getTutorInfo');
 
 const acceptTutor = require('./routes/adminRoutes/tutors/acceptTutor');
 const getUnacceptedTutors = require('./routes/adminRoutes/tutors/getUnacceptedTutors');
@@ -24,6 +25,16 @@ const getOwnProfile = require('./routes/userProtectedRoutes/tutors/getOwnProfile
 const updateTutorProfile = require('./routes/userProtectedRoutes/tutors/updateTutorProfile');
 
 const sendEmail = require('./routes/adminRoutes/email/sendEmail');
+const getAllStudySubjects = require('./routes/unprotectedRoutes/studySubjects/getAllSubjects');
+
+const checkAdminStatus = require('./routes/adminRoutes/admin/checkAdminStatus');
+
+const createReportOfTutor = require('./routes/userProtectedRoutes/reports/createTutorReport');
+const createReportOfReview = require('./routes/userProtectedRoutes/reports/createReviewReport');
+const getUnreviewedTutorReports = require('./routes/adminRoutes/reports/getUnreviewedTutorReports');
+const getUnreviewedReviewReports = require('./routes/adminRoutes/reports/getUnreviewedReviewsReports');
+
+const getAdminStats = require('./routes/adminRoutes/stats/getAdminStats');
 
 // Routes
 
@@ -36,17 +47,34 @@ router.patch('/users/unban', unbanUser);
 
 // Tutors
 router.get('/tutors', getAllTutorsProfiles);
-router.patch('/tutors/accept', acceptTutor);
-router.get('/tutors/unaccepted', getUnacceptedTutors);
-router.patch('/tutors/reject', rejectTutor);
+router.get('/tutors/:id', getTutorInfo);
+router.patch('/tutors/accept/:id', acceptTutor); // Ahora en el front se está enviando el correo /:id
+router.get('/unaccepted-tutors', getUnacceptedTutors);
+router.patch('/tutors/reject/:id', rejectTutor); // Ahora en el front se está enviando el correo /:id
 router.post('/tutors', createTutor);
-router.get('/tutors/self', getOwnProfile);
-router.patch('/tutors', updateTutorProfile);
+router.get('/tutors-self', getOwnProfile);
+router.patch('/own-tutor', updateTutorProfile);
 
 // Reviews
 router.post('/reviews', createReview);
 
 // Send Email
 router.post("/send-email", sendEmail);
+// Study Subjects
+router.get('/subjects', getAllStudySubjects);
+
+// Admin
+router.get('/check-admin', checkAdminStatus);
+router.get('/admin-stats', getAdminStats);
+
+// Reviews Reports
+router.post('/reports/review', createReportOfReview);
+
+// Tutors Reports
+router.post('/reports/tutor', createReportOfTutor);
+
+// Admin Report History
+router.get('/reports/review', getUnreviewedReviewReports);
+router.get('/reports/tutor', getUnreviewedTutorReports);
 
 module.exports = router;

@@ -1,35 +1,88 @@
-/*
-Para esta ruta hacer:
-que se reciba a través de los params las cosas del usuario y se guarden en la tabla
-*/
-
 const db = require('../../../models');
 const checkVerifiedUser = require('../../authorization/checkVerifiedUser');
+const { uploadFile } = require('../../../services/s3');
 
-module.exports = async(ctx) => {
+async function uploadProfilePicture(userId, photo) {
+    if (!photo) {
+        return "https://interac-ciones.s3.amazonaws.com/default.jpg";
+    }
+
+    try {
+        const imageKey = `tutor_${userId}_profile_picture.jpg`;
+        const imagePath = await uploadFile(imageKey, photo);
+        return imagePath;
+    } catch (error) {
+        console.error('Error uploading Profile Picture: ', error);
+        return "https://interac-ciones.s3.amazonaws.com/default.jpg";
+    }
+}
+
+async function createTutorProfile(user, description, priceDescription, photoLink, contactNumber) {
+    return await db.TutorProfile.create({
+        userId: user.id,
+        description,
+        priceDescription,
+        photo: photoLink,
+        contactNumber,
+        isPublished: false,
+    });
+}
+
+async function createTutorCourses(idTutor, courses) {
+    const uniqueCourses = [...new Set(courses.map(course => course.course))];
+    for (const course of uniqueCourses) {
+        await db.TutorCourses.create({
+            idTutor,
+            subject: course,
+        });
+    }
+}
+
+async function createTutorSubjects(idTutor, subjects) {
+    const uniqueSubjects = [...new Set(subjects.map(subject => subject.subject))];
+    for (const subject of uniqueSubjects) {
+        const studySubject = await db.StudySubjects.findOne({
+            where: { subject },
+        });
+        if (studySubject) {
+            await db.TutorSubjects.create({
+                idTutor,
+                idSubject: studySubject.id,
+            });
+        }
+    }
+}
+
+module.exports = async (ctx) => {
     try {
         const userToken = await checkVerifiedUser(ctx);
-        const {description, priceDescription, photo} = ctx.request.body;
-
         if (!userToken) {
-            ctx.body = {
-                message: 'User is not verified',
-            };
+            ctx.body = { message: 'User is not verified' };
             ctx.status = 401;
             return;
         }
-        const user = await db.User.findOne({
-            where : {token: userToken.uid},
-        });
-        
-        const tutorProfile = await db.TutorProfile.create({
-            userId: user.id,
-            description,
-            priceDescription,
-            photo,
-            contactMail: user.email,
-            isPublished: false,
-        });
+
+        const { description, priceDescription, courses, contactNumber } = ctx.request.body;
+        const parsedCourses = JSON.parse(courses);
+        const photo = ctx.request.files.photo;
+
+        const user = await db.User.findOne({ where: { token: userToken.uid } });
+
+        const photoLink = await uploadProfilePicture(user.id, photo);
+
+        // Hacer un pront de todas las cosas del request body y del photolink
+        console.log('description', description);
+        console.log('priceDescription', priceDescription);
+        console.log('parsedCourses', parsedCourses);
+        console.log('photoLink', photoLink);
+        console.log('contactNumber', contactNumber);
+
+
+        const tutorProfile = await createTutorProfile(user, description, priceDescription, photoLink, contactNumber);
+
+        await createTutorCourses(tutorProfile.id, parsedCourses);
+        await createTutorSubjects(tutorProfile.id, parsedCourses);
+
         ctx.body = {
             message: 'Tutor profile created successfully',
             data: tutorProfile,
@@ -43,4 +96,4 @@ module.exports = async(ctx) => {
         };
         ctx.status = 500;
     }
-}
+};

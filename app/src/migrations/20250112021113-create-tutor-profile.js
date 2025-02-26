@@ -15,6 +15,7 @@ module.exports = {
           model: 'Users',
           key: 'id'
         },
+        unique: true,
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE'
       },
@@ -25,7 +26,7 @@ module.exports = {
       photo: {
         type: Sequelize.STRING
       },
-      contactMail: {
+      contactNumber: {
         allowNull: false,
         type: Sequelize.STRING,
         unique: true
