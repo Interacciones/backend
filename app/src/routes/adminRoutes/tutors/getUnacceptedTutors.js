@@ -8,7 +8,6 @@ async function getUnacceptedTutorProfiles() {
         include: [
             {
                 model: db.User,
-                as: 'User',
                 attributes: ['name', 'lastName', 'email'],
             }
         ],
@@ -20,7 +19,6 @@ async function getSubjectsForTutor(tutorId) {
         where: { idTutor: tutorId },
         include: {
             model: db.StudySubjects,
-            as: 'StudySubject',
             attributes: ['subject'],
         },
     });

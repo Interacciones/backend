@@ -8,24 +8,20 @@ const getTutorById = async (tutorId) => {
       include: [
         {
           model: db.TutorSubjects,
-          as: 'Subjects',
           attributes: ['id'],
           include: [
             {
               model: db.StudySubjects,
-              as: 'StudySubject',
               attributes: ['subject'],
             },
           ],
         },
         {
           model: db.TutorCourses,
-          as: 'Courses',
           attributes: ['id', 'subject'],
         },
         {
           model: db.User,
-          as: 'User',
           attributes: ['name', 'lastName', 'email'],
         },
         {
@@ -76,8 +72,8 @@ module.exports = async (ctx) => {
       name: tutorData.User.name,
       lastName: tutorData.User.lastName,
       email: tutorData.User.email,
-      subjects: tutorData.Subjects.map(subject => subject.StudySubject.subject),
-      courses: tutorData.Courses.map(course => course.subject),
+      subjects: tutorData.TutorSubjects.map(subject => subject.StudySubject.subject),
+      courses: tutorData.TutorCourses.map(course => course.subject),
       avgRating: tutorData.ReviewsPerTutor ? tutorData.ReviewsPerTutor.avgRating : null,
       reviewAmount: tutorData.ReviewsPerTutor ? tutorData.ReviewsPerTutor.reviewAmount : null,
       oneStarReviews: tutorData.ReviewsPerTutor ? tutorData.ReviewsPerTutor.oneStarReviews : null,
@@ -87,8 +83,8 @@ module.exports = async (ctx) => {
       fiveStarReviews: tutorData.ReviewsPerTutor ? tutorData.ReviewsPerTutor.fiveStarReviews : null,
     };
 
-    delete responseData.Subjects;
-    delete responseData.Courses;
+    delete responseData.TutorSubjects;
+    delete responseData.TutorCourses;
     delete responseData.User;
     delete responseData.ReviewsPerTutor;
 

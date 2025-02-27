@@ -1,19 +1,22 @@
 const db = require('../../../models');
 const checkAdmin = require('../../authorization/checkAdmin');
 
-async function getPendingTutorReports() {
-    return await db.ReportOfTutor.findAll({
-        where: { status: 'pending' },
+async function getTutorReportHistory() {
+    return await db.ReportHistoryOfTutor.findAll({
         order: [['createdAt', 'DESC']],
-        attributes: ['id', 'userId', 'tutorId', 'description', 'status', 'createdAt'],
+        attributes: ['id', 'reportedById', 'createdById', 'handlerAdminId', 'decisionArgument', 'createdAt'],
         include: [
             {
                 model: db.User,
                 attributes: ['name', 'lastName', 'email'],
             },
             {
-                model: db.TutorProfile,
-                attributes: ['description', 'photo', 'priceDescription', 'contactNumber'],
+                model: db.User,
+                attributes: ['name', 'lastName', 'email'],
+            },
+            {
+                model: db.Admin,
+                attributes: ['id'],
                 include: [
                     {
                         model: db.User,
@@ -25,25 +28,25 @@ async function getPendingTutorReports() {
     });
 }
 
-function formatPendingTutorReports(reports) {
+function formatTutorReportHistory(reports) {
     return reports.map(report => ({
         id: report.id,
-        userReporting: {
+        reportedBy: {
             name: report.User.name,
             lastName: report.User.lastName,
             email: report.User.email,
         },
-        tutor: {
-            name: report.TutorProfile.User.name,
-            lastName: report.TutorProfile.User.lastName,
-            email: report.TutorProfile.User.email,
-            description: report.TutorProfile.description,
-            photo: report.TutorProfile.photo,
-            priceDescription: report.TutorProfile.priceDescription,
-            contactNumber: report.TutorProfile.contactNumber,
+        createdBy: {
+            name: report.User.name,
+            lastName: report.User.lastName,
+            email: report.User.email,
         },
-        description: report.description,
-        status: report.status,
+        handlerAdmin: {
+            name: report.Admin.User.name,
+            lastName: report.Admin.User.lastName,
+            email: report.Admin.User.email,
+        },
+        decisionArgument: report.decisionArgument,
         createdAt: report.createdAt,
     }));
 }
@@ -59,11 +62,11 @@ module.exports = async (ctx) => {
             return;
         }
 
-        const pendingTutorReports = await getPendingTutorReports();
-        const formattedReports = formatPendingTutorReports(pendingTutorReports);
+        const tutorReportHistory = await getTutorReportHistory();
+        const formattedReports = formatTutorReportHistory(tutorReportHistory);
 
         ctx.body = {
-            message: 'Pending tutor reports fetched successfully',
+            message: 'Tutor report history fetched successfully',
             data: formattedReports,
         };
         ctx.status = 200;
@@ -71,7 +74,7 @@ module.exports = async (ctx) => {
     } catch (error) {
         console.error(error);
         ctx.body = {
-            message: 'Failed to fetch pending tutor reports',
+            message: 'Failed to fetch tutor report history',
             error: error.message,
         };
         ctx.status = 500;

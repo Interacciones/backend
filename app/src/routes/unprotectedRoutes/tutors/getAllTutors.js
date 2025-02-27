@@ -1,4 +1,3 @@
-const { where } = require('sequelize');
 const db = require('../../../models');
 
 async function getTutorProfiles() {
@@ -8,7 +7,6 @@ async function getTutorProfiles() {
     include: [
       {
         model: db.User,
-        as: 'User',
         attributes: ['name', 'lastName'],
       },
       {
@@ -24,7 +22,6 @@ async function getSubjectsForTutor(tutorId) {
     where: { idTutor: tutorId },
     include: {
       model: db.StudySubjects,
-      as: 'StudySubject',
       attributes: ['subject'],
     },
   });
@@ -47,9 +44,9 @@ async function getTutorProfilesWithSubjectsAndCourses() {
       const profileData = profile.toJSON();
       return {
         ...profileData,
-        name: profileData.User.name,
-        lastName: profileData.User.lastName,
-        subjects: subjects.map((subject) => subject.StudySubject.subject),
+        name: profileData.User ? profileData.User.name : null,
+        lastName: profileData.User ? profileData.User.lastName : null,
+        subjects: subjects.map((subject) => subject.StudySubject ? subject.StudySubject.subject : null),
         courses: courses.map((course) => course.subject),
         avgRating: profileData.ReviewsPerTutor ? profileData.ReviewsPerTutor.avgRating : null,
       };

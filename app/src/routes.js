@@ -35,6 +35,9 @@ const getUnreviewedReviewReports = require('./routes/adminRoutes/reports/getUnre
 
 const getAdminStats = require('./routes/adminRoutes/stats/getAdminStats');
 
+const getReviewReportHistory = require('./routes/adminRoutes/reportHistory/getReviewReportHistory');
+const getTutorReportHistory = require('./routes/adminRoutes/reportHistory/getTutorReportHistory');
+
 // Routes
 
 // Users
@@ -47,9 +50,9 @@ router.patch('/users/unban', unbanUser);
 // Tutors
 router.get('/tutors', getAllTutorsProfiles);
 router.get('/tutors/:id', getTutorInfo);
-router.patch('/tutors/accept/:id', acceptTutor); // Ahora en el front se está enviando el correo /:id
+router.patch('/tutors/accept/:id', acceptTutor);
 router.get('/unaccepted-tutors', getUnacceptedTutors);
-router.patch('/tutors/reject/:id', rejectTutor); // Ahora en el front se está enviando el correo /:id
+router.patch('/tutors/reject/:id', rejectTutor);
 router.post('/tutors', createTutor);
 router.get('/tutors-self', getOwnProfile);
 router.patch('/own-tutor', updateTutorProfile);
@@ -73,5 +76,9 @@ router.post('/reports/tutor', createReportOfTutor);
 // Admin Report History
 router.get('/reports/review', getUnreviewedReviewReports);
 router.get('/reports/tutor', getUnreviewedTutorReports);
+
+// Report History
+router.get('/report-history/review', getReviewReportHistory);
+router.get('/report-history/tutor', getTutorReportHistory);
 
 module.exports = router;

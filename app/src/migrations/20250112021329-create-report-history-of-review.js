@@ -8,11 +8,21 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      reportId: {
+      reportedByUserId: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'ReportOfReviews',
+          model: 'Users',
+          key: 'id'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE'
+      },
+      createdByUserId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'Users',
           key: 'id'
         },
         onUpdate: 'CASCADE',
