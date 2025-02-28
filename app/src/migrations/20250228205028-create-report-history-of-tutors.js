@@ -1,7 +1,9 @@
 'use strict';
+
+/** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('ReportHistoryOfReviews', {
+    await queryInterface.createTable('ReportHistoryOfTutors', {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -32,7 +34,7 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'Users',
+          model: 'Admins',
           key: 'id'
         },
         onUpdate: 'CASCADE',
@@ -56,7 +58,8 @@ module.exports = {
       }
     });
   },
+
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('ReportHistoryOfReviews');
+    await queryInterface.dropTable('ReportHistoryOfTutors');
   }
 };
