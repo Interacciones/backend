@@ -28,15 +28,19 @@ module.exports = {
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE'
       },
-      handlerAdminId: {
+      handlerAdminUserId: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'Admins',
+          model: 'Users',
           key: 'id'
         },
         onUpdate: 'CASCADE',
         onDelete: 'SET NULL'
+      },
+      status: {
+        type: Sequelize.STRING,
+        allowNull: false,
       },
       decisionArgument: {
         type: Sequelize.STRING(500),

@@ -4,7 +4,7 @@ const checkAdmin = require('../../authorization/checkAdmin');
 async function getTutorReportHistory() {
     return await db.ReportHistoryOfTutor.findAll({
         order: [['createdAt', 'DESC']],
-        attributes: ['id', 'reportedById', 'createdById', 'handlerAdminId', 'decisionArgument', 'createdAt'],
+        attributes: ['id', 'reportedByUserId', 'createdById', 'handlerAdminUserId', 'decisionArgument', 'createdAt'],
         include: [
             {
                 model: db.User,

@@ -32,6 +32,7 @@ const createReportOfTutor = require('./routes/userProtectedRoutes/reports/create
 const createReportOfReview = require('./routes/userProtectedRoutes/reports/createReviewReport');
 const getUnreviewedTutorReports = require('./routes/adminRoutes/reports/getUnreviewedTutorReports');
 const getUnreviewedReviewReports = require('./routes/adminRoutes/reports/getUnreviewedReviewsReports');
+const eliminateReviewByReport = require('./routes/adminRoutes/reports/eliminateReviewByReport');
 
 const getAdminStats = require('./routes/adminRoutes/stats/getAdminStats');
 
@@ -69,6 +70,7 @@ router.get('/admin-stats', getAdminStats);
 
 // Reviews Reports
 router.post('/reports/review', createReportOfReview);
+router.patch('/reports/review/eliminate', eliminateReviewByReport);
 
 // Tutors Reports
 router.post('/reports/tutor', createReportOfTutor);

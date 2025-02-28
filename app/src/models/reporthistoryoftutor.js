@@ -5,13 +5,13 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       ReportHistoryOfTutor.belongsTo(models.User, { foreignKey: 'reportedByUserId' });
       ReportHistoryOfTutor.belongsTo(models.User, { foreignKey: 'createdByUserId' });
-      ReportHistoryOfTutor.belongsTo(models.Admin, { foreignKey: 'handlerAdminId' });
+      ReportHistoryOfTutor.belongsTo(models.Admin, { foreignKey: 'handlerAdminUserId' });
     }
   }
   ReportHistoryOfTutor.init({
     reportedByUserId: DataTypes.INTEGER,
     createdByUserId: DataTypes.INTEGER,
-    handlerAdminId: DataTypes.INTEGER,
+    handlerAdminUserId: DataTypes.INTEGER,
     status: DataTypes.STRING,
     decisionArgument: DataTypes.STRING(500)
   }, {

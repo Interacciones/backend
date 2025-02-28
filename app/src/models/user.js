@@ -10,9 +10,9 @@ module.exports = (sequelize, DataTypes) => {
       User.hasMany(models.ReportOfReview, { foreignKey: 'userId' });
       User.hasOne(models.TutorProfile, { foreignKey: 'userId' });
       User.hasOne(models.Admin, { foreignKey: 'userId' });
-      User.hasMany(models.ReportHistoryOfReview, { foreignKey: 'reportedById' });
+      User.hasMany(models.ReportHistoryOfReview, { foreignKey: 'reportedByUserId' });
       User.hasMany(models.ReportHistoryOfReview, { foreignKey: 'createdById' });
-      User.hasMany(models.ReportHistoryOfTutor, { foreignKey: 'reportedById' });
+      User.hasMany(models.ReportHistoryOfTutor, { foreignKey: 'reportedByUserId' });
       User.hasMany(models.ReportHistoryOfTutor, { foreignKey: 'createdById' });
     }
   }

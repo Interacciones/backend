@@ -9,7 +9,7 @@ async function getPendingReviewReports() {
         include: [
             {
                 model: db.User,
-                attributes: ['name', 'lastName', 'email'],
+                attributes: ['id', 'name', 'lastName', 'email'],
             },
             {
                 model: db.ReviewMessage,
@@ -17,7 +17,7 @@ async function getPendingReviewReports() {
                 include: [
                     {
                         model: db.User,
-                        attributes: ['name', 'lastName'],
+                        attributes: ['id', 'name', 'lastName'],
                     },
                     {
                         model: db.TutorProfile,
@@ -25,7 +25,7 @@ async function getPendingReviewReports() {
                         include: [
                             {
                                 model: db.User,
-                                attributes: ['name', 'lastName'],
+                                attributes: ['id', 'name', 'lastName'],
                             },
                         ],
                     },
@@ -39,6 +39,7 @@ function formatPendingReviewReports(reports) {
     return reports.map(report => ({
         id: report.id,
         userReporting: {
+            id: report.User.id,
             name: report.User.name,
             lastName: report.User.lastName,
             email: report.User.email,
@@ -49,10 +50,12 @@ function formatPendingReviewReports(reports) {
             createdAt: report.ReviewMessage.createdAt,
         },
         reviewer: {
+            id: report.ReviewMessage.User.id,
             name: report.ReviewMessage.User.name,
             lastName: report.ReviewMessage.User.lastName,
         },
         tutor: {
+            id: report.ReviewMessage.TutorProfile.User.id,
             name: report.ReviewMessage.TutorProfile.User.name,
             lastName: report.ReviewMessage.TutorProfile.User.lastName,
         },
