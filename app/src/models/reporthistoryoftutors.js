@@ -5,7 +5,7 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       ReportHistoryOfTutors.belongsTo(models.User, { foreignKey: 'reportedByUserId' });
       ReportHistoryOfTutors.belongsTo(models.User, { foreignKey: 'createdByUserId' });
-      ReportHistoryOfTutors.belongsTo(models.Admin, { foreignKey: 'handlerAdminUserId' });
+      ReportHistoryOfTutors.belongsTo(models.User, { foreignKey: 'handlerAdminUserId' });
     }
   }
   ReportHistoryOfTutors.init({
