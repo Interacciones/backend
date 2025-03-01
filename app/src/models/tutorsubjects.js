@@ -4,7 +4,7 @@ module.exports = (sequelize, DataTypes) => {
   class TutorSubjects extends Model {
     static associate(models) {
       TutorSubjects.belongsTo(models.TutorProfile, { foreignKey: 'idTutor' });
-      TutorSubjects.belongsTo(models.StudySubjects, { foreignKey: 'idSubject', as: 'StudySubject' });
+      TutorSubjects.belongsTo(models.StudySubjects, { foreignKey: 'idSubject' });
     }
   }
   TutorSubjects.init({

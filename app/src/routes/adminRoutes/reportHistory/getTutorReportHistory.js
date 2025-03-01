@@ -1,8 +1,8 @@
 const db = require('../../../models');
 const checkAdmin = require('../../authorization/checkAdmin');
 
-async function getReviewReportHistory() {
-    return await db.ReportHistoryOfReviews.findAll({
+async function getTutorReportHistory() {
+    return await db.ReportHistoryOfTutors.findAll({
         order: [['createdAt', 'DESC']],
         attributes: ['id', 'reportedByUserId', 'createdByUserId', 'handlerAdminUserId', 'status', 'decisionArgument', 'createdAt'],
     });
@@ -15,7 +15,7 @@ async function getUserById(userId) {
     });
 }
 
-function formatReviewReportHistory(reports, users) {
+function formatTutorReportHistory(reports, users) {
     return reports.map(report => {
         const reportedByUser = users.find(user => user.id === report.reportedByUserId);
         const createdByUser = users.find(user => user.id === report.createdByUserId);
@@ -59,22 +59,22 @@ module.exports = async (ctx) => {
             return;
         }
 
-        const reviewReportHistory = await getReviewReportHistory();
+        const tutorReportHistory = await getTutorReportHistory();
 
         const userIds = [
             ...new Set([
-                ...reviewReportHistory.map(report => report.reportedByUserId),
-                ...reviewReportHistory.map(report => report.createdByUserId),
-                ...reviewReportHistory.map(report => report.handlerAdminUserId),
+                ...tutorReportHistory.map(report => report.reportedByUserId),
+                ...tutorReportHistory.map(report => report.createdByUserId),
+                ...tutorReportHistory.map(report => report.handlerAdminUserId),
             ]),
         ];
 
         const users = await Promise.all(userIds.map(id => getUserById(id)));
 
-        const formattedReports = formatReviewReportHistory(reviewReportHistory, users);
+        const formattedReports = formatTutorReportHistory(tutorReportHistory, users);
 
         ctx.body = {
-            message: 'Review report history fetched successfully',
+            message: 'Tutor report history fetched successfully',
             data: formattedReports,
         };
         ctx.status = 200;
@@ -82,7 +82,7 @@ module.exports = async (ctx) => {
     } catch (error) {
         console.error(error);
         ctx.body = {
-            message: 'Failed to fetch review report history',
+            message: 'Failed to fetch tutor report history',
             error: error.message,
         };
         ctx.status = 500;

@@ -14,19 +14,16 @@ const getTutorProfileByUserId = async (userId) => {
       include: [
         {
           model: db.TutorSubjects,
-          as: 'Subjects',
           attributes: ['id'],
           include: [
             {
               model: db.StudySubjects,
-              as: 'StudySubject',
               attributes: ['subject'],
             },
           ],
         },
         {
           model: db.TutorCourses,
-          as: 'Courses',
           attributes: ['id', 'subject'],
         }
       ],
@@ -68,12 +65,12 @@ module.exports = async (ctx) => {
 
     const responseData = {
       ...tutorProfile.toJSON(),
-      subjects: tutorProfile.Subjects.map(subject => subject.StudySubject.subject),
-      courses: tutorProfile.Courses.map(course => course.subject),
+      subjects: tutorProfile.TutorSubjects.map(subject => subject.StudySubject.subject),
+      courses: tutorProfile.TutorCourses.map(course => course.subject),
     };
 
-    delete responseData.Subjects;
-    delete responseData.Courses;
+    delete responseData.TutorSubjects;
+    delete responseData.TutorCourses;
 
     ctx.body = {
       message: 'Tutor profile fetched successfully',

@@ -5,7 +5,6 @@ const Middleware = require('../../middleware/index');
 module.exports = async(ctx) => {
     try {
         const userToken = await Middleware.decodeToken(ctx);
-        console.log(userToken)
         const token = userToken.uid;
         const user = await User.findOne({ where: { token } });
         const admin = await Admin.findOne({ where: { userId: user.id } });

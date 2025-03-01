@@ -9,18 +9,15 @@ async function getPendingTutorReports() {
         include: [
             {
                 model: db.User,
-                as: 'User',
-                attributes: ['name', 'lastName', 'email'],
+                attributes: ['id', 'name', 'lastName', 'email'],
             },
             {
                 model: db.TutorProfile,
-                as: 'TutorProfile',
                 attributes: ['description', 'photo', 'priceDescription', 'contactNumber'],
                 include: [
                     {
                         model: db.User,
-                        as: 'User',
-                        attributes: ['name', 'lastName', 'email'],
+                        attributes: ['id', 'name', 'lastName', 'email'],
                     },
                 ],
             },
@@ -32,11 +29,13 @@ function formatPendingTutorReports(reports) {
     return reports.map(report => ({
         id: report.id,
         userReporting: {
+            id: report.User.id,
             name: report.User.name,
             lastName: report.User.lastName,
             email: report.User.email,
         },
         tutor: {
+            id: report.TutorProfile.User.id,
             name: report.TutorProfile.User.name,
             lastName: report.TutorProfile.User.lastName,
             email: report.TutorProfile.User.email,
