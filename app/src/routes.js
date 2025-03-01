@@ -34,6 +34,8 @@ const getUnreviewedTutorReports = require('./routes/adminRoutes/reports/getUnrev
 const getUnreviewedReviewReports = require('./routes/adminRoutes/reports/getUnreviewedReviewsReports');
 const eliminateReviewByReport = require('./routes/adminRoutes/reports/eliminateReviewByReport');
 const eliminateTutorByReport = require('./routes/adminRoutes/reports/eliminateTutorByReport');
+const ignoreReviewReport = require('./routes/adminRoutes/reports/ignoreReviewReport'); // Importar controlador
+const ignoreTutorReport = require('./routes/adminRoutes/reports/ignoreTutorReport'); // Importar controlador
 
 const getAdminStats = require('./routes/adminRoutes/stats/getAdminStats');
 
@@ -72,10 +74,12 @@ router.get('/admin-stats', getAdminStats);
 // Reviews Reports
 router.post('/reports/review', createReportOfReview);
 router.patch('/reports/review/eliminate', eliminateReviewByReport);
+router.patch('/reports/review/ignore', ignoreReviewReport);
 router.patch('/reports/tutor/eliminate', eliminateTutorByReport);
 
 // Tutors Reports
 router.post('/reports/tutor', createReportOfTutor);
+router.patch('/reports/tutor/ignore', ignoreTutorReport);
 
 // Admin Report History
 router.get('/reports/review', getUnreviewedReviewReports);
