@@ -9,23 +9,23 @@ async function getAdminUser(token) {
 }
 
 async function getReportById(reportId) {
-    return await db.ReportOfTutor.findOne({
+    return await db.ReportOfReview.findOne({
         where: { id: reportId },
     });
 }
 
 async function addReportToHistory({ reportedByUserId, createdByUserId, handlerAdminUserId, decisionArgument }) {
-    return await db.ReportHistoryOfTutors.create({
+    return await db.ReportHistoryOfReviews.create({
         reportedByUserId: reportedByUserId,
         createdByUserId: createdByUserId,
         handlerAdminUserId: handlerAdminUserId,
-        status: 'Reporte de tutor ignorado',
+        status: 'Reporte de review ignorado',
         decisionArgument: decisionArgument,
     });
 }
 
 async function deleteReport(reportId) {
-    return await db.ReportOfTutor.destroy({
+    return await db.ReportOfReview.destroy({
         where: { id: reportId },
     });
 }
@@ -71,14 +71,14 @@ module.exports = async (ctx) => {
         await deleteReport(reportId);
 
         ctx.body = {
-            message: 'Tutor report ignored successfully',
+            message: 'Review report ignored successfully',
         };
         ctx.status = 200;
 
     } catch (error) {
         console.error(error);
         ctx.body = {
-            message: 'Failed to ignore tutor report',
+            message: 'Failed to ignore review report',
             error: error.message,
         };
         ctx.status = 500;

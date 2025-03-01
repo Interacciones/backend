@@ -1,4 +1,6 @@
 'use strict';
+
+/** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('ReportHistoryOfReviews', {
@@ -40,7 +42,7 @@ module.exports = {
       },
       status: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: false
       },
       decisionArgument: {
         type: Sequelize.STRING(500),
@@ -56,6 +58,7 @@ module.exports = {
       }
     });
   },
+
   async down(queryInterface, Sequelize) {
     await queryInterface.dropTable('ReportHistoryOfReviews');
   }

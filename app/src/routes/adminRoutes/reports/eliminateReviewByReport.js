@@ -15,7 +15,7 @@ async function getReportById(reportId) {
 }
 
 async function addReportToHistory({ reportedByUserId, createdByUserId, handlerAdminUserId, decisionArgument }) {
-    return await db.ReportHistoryOfReview.create({
+    return await db.ReportHistoryOfReviews.create({
         reportedByUserId: reportedByUserId,
         createdByUserId: createdByUserId,
         handlerAdminUserId: handlerAdminUserId,
@@ -67,23 +67,15 @@ module.exports = async (ctx) => {
             return;
         }
 
-        await db.ReportHistoryOfReview.create({
-            reportedByUserId: 1,
-            createdByUserId: 1,
-            handlerAdminUserId: 1,
-            status: 'Review eliminated',
-            decisionArgument: "This review was eliminated because it was reported",
+        await addReportToHistory({
+            reportedByUserId,
+            createdByUserId,
+            handlerAdminUserId: user.id,
+            decisionArgument,
         });
 
-        // await addReportToHistory({
-        //     reportedByUserId,
-        //     createdByUserId,
-        //     handlerAdminUserId: user.id,
-        //     decisionArgument,
-        // });
-
-        // await deleteReport(reportId);
-        // await deleteReviewMessage(report.reviewId);
+        await deleteReport(reportId);
+        await deleteReviewMessage(report.reviewId);
 
         ctx.body = {
             message: 'Review and report handled successfully',

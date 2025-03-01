@@ -1,3 +1,8 @@
+// CAMBIAR
+// En el futuro sería bueno crear una tabla adicional para poder guardar los pérfiles de los tutores eliminados
+// y poder hacer un seguimiento de los tutores que han sido eliminados por reportes.
+// Por ahora, se elimina el tutor de la base de datos.
+
 const db = require('../../../models');
 const checkAdmin = require('../../authorization/checkAdmin');
 
@@ -19,8 +24,14 @@ async function addReportToHistory({ reportedByUserId, createdByUserId, handlerAd
         reportedByUserId: reportedByUserId,
         createdByUserId: createdByUserId,
         handlerAdminUserId: handlerAdminUserId,
-        status: 'Reporte de tutor ignorado',
+        status: 'Tutor eliminado',
         decisionArgument: decisionArgument,
+    });
+}
+
+async function deleteTutorProfile(tutorId) {
+    return await db.TutorProfile.destroy({
+        where: { id: tutorId },
     });
 }
 
@@ -65,22 +76,25 @@ module.exports = async (ctx) => {
             reportedByUserId,
             createdByUserId,
             handlerAdminUserId: user.id,
+            status: 'Tutor eliminado',
             decisionArgument,
         });
 
+        await deleteTutorProfile(report.tutorId);
         await deleteReport(reportId);
 
         ctx.body = {
-            message: 'Tutor report ignored successfully',
+            message: 'Tutor and report handled successfully',
         };
         ctx.status = 200;
 
     } catch (error) {
         console.error(error);
         ctx.body = {
-            message: 'Failed to ignore tutor report',
+            message: 'Failed to handle tutor and report',
             error: error.message,
         };
         ctx.status = 500;
     }
 };
+

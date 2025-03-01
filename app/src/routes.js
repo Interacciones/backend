@@ -33,6 +33,9 @@ const createReportOfReview = require('./routes/userProtectedRoutes/reports/creat
 const getUnreviewedTutorReports = require('./routes/adminRoutes/reports/getUnreviewedTutorReports');
 const getUnreviewedReviewReports = require('./routes/adminRoutes/reports/getUnreviewedReviewsReports');
 const eliminateReviewByReport = require('./routes/adminRoutes/reports/eliminateReviewByReport');
+const eliminateTutorByReport = require('./routes/adminRoutes/reports/eliminateTutorByReport');
+const ignoreReviewReport = require('./routes/adminRoutes/reports/ignoreReviewReport');
+const ignoreTutorReport = require('./routes/adminRoutes/reports/ignoreTutorReport');
 
 const getAdminStats = require('./routes/adminRoutes/stats/getAdminStats');
 
@@ -44,9 +47,9 @@ const getTutorReportHistory = require('./routes/adminRoutes/reportHistory/getTut
 // Users
 router.get('/users/:id', getUserProfile);
 router.post('/users', createUser);
-router.patch('/users/ban', banUser);
+router.patch('/users/ban/:id', banUser);
 router.get('/users', getAllUsers);
-router.patch('/users/unban', unbanUser);
+router.patch('/users/unban/:id', unbanUser);
 
 // Tutors
 router.get('/tutors', getAllTutorsProfiles);
@@ -71,9 +74,12 @@ router.get('/admin-stats', getAdminStats);
 // Reviews Reports
 router.post('/reports/review', createReportOfReview);
 router.patch('/reports/review/eliminate', eliminateReviewByReport);
+router.patch('/reports/review/ignore', ignoreReviewReport);
+router.patch('/reports/tutor/eliminate', eliminateTutorByReport);
 
 // Tutors Reports
 router.post('/reports/tutor', createReportOfTutor);
+router.patch('/reports/tutor/ignore', ignoreTutorReport);
 
 // Admin Report History
 router.get('/reports/review', getUnreviewedReviewReports);
