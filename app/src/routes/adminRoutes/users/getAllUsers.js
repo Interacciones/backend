@@ -1,8 +1,3 @@
-/*
-Para esta ruta hacer:
-Obtener todos los nombres y apellidos de usuario y sus correos
-*/
-
 const db = require('../../../models');
 const checkAdmin = require('../../authorization/checkAdmin');
 
