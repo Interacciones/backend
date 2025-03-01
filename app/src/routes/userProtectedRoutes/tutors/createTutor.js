@@ -70,14 +70,6 @@ module.exports = async (ctx) => {
 
         const photoLink = await uploadProfilePicture(user.id, photo);
 
-        // Hacer un pront de todas las cosas del request body y del photolink
-        console.log('description', description);
-        console.log('priceDescription', priceDescription);
-        console.log('parsedCourses', parsedCourses);
-        console.log('photoLink', photoLink);
-        console.log('contactNumber', contactNumber);
-
-
         const tutorProfile = await createTutorProfile(user, description, priceDescription, photoLink, contactNumber);
 
         await createTutorCourses(tutorProfile.id, parsedCourses);

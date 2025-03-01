@@ -1,50 +1,53 @@
-/*
-Para esta ruta hacer:
-Hacer un update en el usuario en el isBanned a true
-*/
-
 const db = require('../../../models');
 const checkAdmin = require('../../authorization/checkAdmin');
 
-module.exports = async(ctx) => {
+module.exports = async (ctx) => {
     try {
         const tokenAdmin = await checkAdmin(ctx);
-        const {userId} = ctx.request.body;
-
         if (!tokenAdmin) {
-            ctx.body = {
-                message: 'User is not admin',
-            };
             ctx.status = 401;
+            ctx.body = { message: 'User is not admin' };
             return;
         }
-        
+
+        const { id: userId } = ctx.params;
         const userProfile = await db.User.findByPk(userId);
-        if (userProfile.isBanned) {
-            throw new Error('User is already banned');
+
+        if (!userProfile) {
+            ctx.status = 404;
+            ctx.body = { message: 'User not found' };
+            return;
         }
-        
+
+        if (userProfile.isBanned) {
+            ctx.status = 400;
+            ctx.body = { message: 'User is already banned' };
+            return;
+        }
+
         userProfile.isBanned = true;
         await userProfile.save();
 
         const tutorProfile = await db.TutorProfile.findOne({
-            where: {userId: userProfile.id},
+            where: { userId: userProfile.id },
         });
+
         if (tutorProfile) {
             await tutorProfile.destroy();
         }
 
-        ctx.body = {
-            message: "User banned successfully",
-        };
+        await db.ReviewMessage.destroy({
+            where: { userId: userProfile.id },
+        });
+
         ctx.status = 200;
-        return;
+        ctx.body = { message: 'User banned successfully' };
     } catch (error) {
         console.error(error);
+        ctx.status = 500;
         ctx.body = {
-            message: 'Failed to ban tutor',
+            message: 'Failed to ban user',
             error: error.message,
         };
-        ctx.status = 500;
     }
 };

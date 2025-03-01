@@ -18,7 +18,7 @@ module.exports = async (ctx) => {
         }
 
         const users = await db.User.findAll({
-            attributes: ['name', 'lastName', 'email', 'isBanned'],
+            attributes: ['id', 'name', 'lastName', 'email', 'isBanned'],
         });
 
         ctx.body = {
