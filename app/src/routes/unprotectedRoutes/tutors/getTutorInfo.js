@@ -41,6 +41,10 @@ const getTutorReviews = async (tutorId) => {
     return await db.ReviewMessage.findAll({
       where: { tutorId },
       attributes: ['id', 'rating', 'content', 'createdAt'],
+      include: {
+        model: db.User,
+        attributes: ['name', 'lastName'],
+      },
     });
   } catch (error) {
     console.error('Error fetching tutor reviews:', error);
@@ -93,7 +97,14 @@ module.exports = async (ctx) => {
       message: 'Tutor fetched successfully',
       data: {
         ...responseData,
-        reviews,
+        reviews: reviews.map(review => ({
+          id: review.id,
+          rating: review.rating,
+          content: review.content,
+          createdAt: review.createdAt,
+          name: review.User.name,
+          lastName: review.User.lastName,
+        })),
       },
     };
   } catch (error) {
