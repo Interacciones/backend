@@ -1,19 +1,58 @@
 const db = require('../../../models');
+const { Op } = require('sequelize');
 
-async function getTutorProfiles() {
-  return await db.TutorProfile.findAll({
-    where: { isPublished: true },
+const ALLOWED_QUANTITIES = [9, 15, 21];
+const DEFAULT_QUANTITY = 15;
+
+async function getTutorProfiles(limit, offset, filters) {
+  const { nombre, curso, area } = filters;
+
+  const whereClause = {
+    isPublished: true,
+  };
+
+  if (nombre) {
+    whereClause['$User.name$'] = { [Op.like]: `%${nombre}%` };
+    whereClause['$User.lastName$'] = { [Op.like]: `%${nombre}%` };
+  }
+
+  const includeClause = [
+    {
+      model: db.User,
+      attributes: ['name', 'lastName'],
+    },
+    {
+      model: db.ReviewsPerTutor,
+      attributes: ['avgRating'],
+    },
+  ];
+
+  if (curso) {
+    includeClause.push({
+      model: db.TutorCourses,
+      where: { subject: { [Op.like]: `%${curso}%` } },
+      attributes: [],
+    });
+  }
+
+  if (area) {
+    includeClause.push({
+      model: db.TutorSubjects,
+      where: { '$StudySubjects.subject$': { [Op.like]: `%${area}%` } },
+      include: {
+        model: db.StudySubjects,
+        attributes: [],
+      },
+      attributes: [],
+    });
+  }
+
+  return await db.TutorProfile.findAndCountAll({
+    where: whereClause,
     attributes: ['id', 'description', 'photo', 'priceDescription', 'contactNumber', 'isPublished'],
-    include: [
-      {
-        model: db.User,
-        attributes: ['name', 'lastName'],
-      },
-      {
-        model: db.ReviewsPerTutor,
-        attributes: ['avgRating'],
-      },
-    ],
+    include: includeClause,
+    limit,
+    offset,
   });
 }
 
@@ -34,8 +73,8 @@ async function getCoursesForTutor(tutorId) {
   });
 }
 
-async function getTutorProfilesWithSubjectsAndCourses() {
-  const profiles = await getTutorProfiles();
+async function getTutorProfilesWithSubjectsAndCourses(limit, offset, filters) {
+  const { rows: profiles, count: totalCount } = await getTutorProfiles(limit, offset, filters);
 
   const profilesWithDetails = await Promise.all(
     profiles.map(async (profile) => {
@@ -53,19 +92,30 @@ async function getTutorProfilesWithSubjectsAndCourses() {
     })
   );
 
-  return profilesWithDetails.map(profile => {
-    const { User, ReviewsPerTutor, ...rest } = profile;
-    return rest;
-  });
+  return {
+    profiles: profilesWithDetails.map(profile => {
+      const { User, ReviewsPerTutor, ...rest } = profile;
+      return rest;
+    }),
+    totalCount,
+  };
 }
 
 module.exports = async (ctx) => {
   try {
-    const tutorProfiles = await getTutorProfilesWithSubjectsAndCourses();
+    const { cantidad, pagina, nombre, curso, area } = ctx.query;
+    const limit = ALLOWED_QUANTITIES.includes(parseInt(cantidad)) ? parseInt(cantidad) : DEFAULT_QUANTITY;
+    const page = parseInt(pagina) || 1;
+    const offset = (page - 1) * limit;
+
+    const filters = { nombre, curso, area };
+
+    const { profiles, totalCount } = await getTutorProfilesWithSubjectsAndCourses(limit, offset, filters);
 
     ctx.body = {
       message: 'Tutor profiles fetched successfully',
-      data: tutorProfiles,
+      data: profiles,
+      totalCount,
     };
     ctx.status = 200;
   } catch (error) {
