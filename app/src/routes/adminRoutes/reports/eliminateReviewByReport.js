@@ -1,5 +1,6 @@
 const db = require('../../../models');
 const checkAdmin = require('../../authorization/checkAdmin');
+const { sendEmailNotification } = require('../../../services/emailService');
 
 async function getAdminUser(token) {
     return await db.User.findOne({
@@ -33,6 +34,13 @@ async function deleteReviewMessage(reviewId) {
 async function deleteReport(reportId) {
     return await db.ReportOfReview.destroy({
         where: { id: reportId },
+    });
+}
+
+async function getUserById(userId) {
+    return await db.User.findOne({
+        where: { id: userId },
+        attributes: ['email'],
     });
 }
 
@@ -76,6 +84,25 @@ module.exports = async (ctx) => {
 
         await deleteReport(reportId);
         await deleteReviewMessage(report.reviewId);
+
+        const reportedUser = await getUserById(reportedByUserId);
+        const createdUser = await getUserById(createdByUserId);
+
+        if (createdUser && createdUser.email) {
+            await sendEmailNotification(
+                createdUser.email,
+                'Comentario eliminado',
+                'Tu comentario ha sido eliminado debido a un reporte.'
+            );
+        }
+
+        if (reportedUser && reportedUser.email) {
+            await sendEmailNotification(
+                reportedUser.email,
+                'Reporte manejado',
+                'Tu reporte ha sido manejado y el comentario ha sido eliminado.'
+            );
+        }
 
         ctx.body = {
             message: 'Review and report handled successfully',
