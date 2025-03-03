@@ -5,6 +5,7 @@
 
 const db = require('../../../models');
 const checkAdmin = require('../../authorization/checkAdmin');
+const { sendEmailNotification } = require('../../../services/emailService');
 
 async function getAdminUser(token) {
     return await db.User.findOne({
@@ -38,6 +39,13 @@ async function deleteTutorProfile(tutorId) {
 async function deleteReport(reportId) {
     return await db.ReportOfTutor.destroy({
         where: { id: reportId },
+    });
+}
+
+async function getUserById(userId) {
+    return await db.User.findOne({
+        where: { id: userId },
+        attributes: ['email'],
     });
 }
 
@@ -82,6 +90,25 @@ module.exports = async (ctx) => {
 
         await deleteTutorProfile(report.tutorId);
         await deleteReport(reportId);
+
+        const reportedUser = await getUserById(reportedByUserId);
+        const createdUser = await getUserById(createdByUserId);
+
+        if (createdUser && createdUser.email) {
+            await sendEmailNotification(
+                createdUser.email,
+                'Perfil de tutor eliminado',
+                'Tu perfil de tutor ha sido eliminado debido a un reporte.'
+            );
+        }
+
+        if (reportedUser && reportedUser.email) {
+            await sendEmailNotification(
+                reportedUser.email,
+                'Reporte manejado',
+                'Tu reporte ha sido manejado y el perfil de tutor ha sido eliminado.'
+            );
+        }
 
         ctx.body = {
             message: 'Tutor and report handled successfully',

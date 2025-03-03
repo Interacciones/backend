@@ -2,6 +2,46 @@ const db = require('../../../models');
 const checkVerifiedUser = require('../../authorization/checkVerifiedUser');
 const updateReviewsPerTutor = require('../../auxilaryFunctions/ReviewsPerTutor/updateTable');
 const createInitialReviewsPerTutorRecord = require('../../auxilaryFunctions/ReviewsPerTutor/createInitialRecord');
+const { sendEmailNotification } = require('../../../services/emailService');
+
+async function getUserByToken(token) {
+    return await db.User.findOne({
+        where: { token },
+    });
+}
+
+async function getTutorProfile(tutorId) {
+    return await db.TutorProfile.findByPk(tutorId);
+}
+
+async function createReview(userId, tutorId, rating, content) {
+    return await db.ReviewMessage.create({
+        userId,
+        tutorId,
+        rating,
+        content,
+    });
+}
+
+async function ensureReviewsPerTutorRecordExists(tutorId) {
+    const reviewsPerTutor = await db.ReviewsPerTutor.findOne({
+        where: { tutorId },
+    });
+
+    if (!reviewsPerTutor) {
+        await createInitialReviewsPerTutorRecord(tutorId);
+    }
+}
+
+async function notifyTutorOfNewReview(tutorUser, rating, content) {
+    if (tutorUser && tutorUser.email) {
+        await sendEmailNotification(
+            tutorUser.email,
+            'Nueva reseña recibida',
+            `Has recibido una nueva reseña con una calificación de ${rating} estrellas. Comentario: ${content}`
+        );
+    }
+}
 
 module.exports = async(ctx) => {
     try {
@@ -16,33 +56,20 @@ module.exports = async(ctx) => {
             return;
         }
 
-        const user = await db.User.findOne({
-            where: { token: userToken.uid },
-        });
+        const user = await getUserByToken(userToken.uid);
+        const tutor = await getTutorProfile(tutorId);
 
-        const tutor = await db.TutorProfile.findByPk(tutorId);
-        if (user.id == tutor.userId) {
+        if (user.id === tutor.userId) {
             throw new Error('User cannot review themselves');
         }
 
-        const review = await db.ReviewMessage.create({
-            userId: user.id,
-            tutorId,
-            rating,
-            content,
-        });
+        const review = await createReview(user.id, tutorId, rating, content);
 
-        // Check if ReviewsPerTutor record exists, if not create it
-        const reviewsPerTutor = await db.ReviewsPerTutor.findOne({
-            where: { tutorId },
-        });
-
-        if (!reviewsPerTutor) {
-            await createInitialReviewsPerTutorRecord(tutorId);
-        }
-
-        // Update the ReviewsPerTutor table
+        await ensureReviewsPerTutorRecordExists(tutorId);
         await updateReviewsPerTutor(tutorId, rating, true);
+
+        const tutorUser = await db.User.findByPk(tutor.userId);
+        await notifyTutorOfNewReview(tutorUser, rating, content);
 
         ctx.body = {
             message: 'Review created successfully',

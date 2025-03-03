@@ -1,5 +1,6 @@
 const db = require('../../../models');
 const checkAdmin = require('../../authorization/checkAdmin');
+const { sendEmailNotification } = require('../../../services/emailService');
 
 async function getAdminUser(token) {
     return await db.User.findOne({
@@ -27,6 +28,13 @@ async function addReportToHistory({ reportedByUserId, createdByUserId, handlerAd
 async function deleteReport(reportId) {
     return await db.ReportOfReview.destroy({
         where: { id: reportId },
+    });
+}
+
+async function getUserById(userId) {
+    return await db.User.findOne({
+        where: { id: userId },
+        attributes: ['email'],
     });
 }
 
@@ -69,6 +77,16 @@ module.exports = async (ctx) => {
         });
 
         await deleteReport(reportId);
+
+        const reportedUser = await getUserById(reportedByUserId);
+
+        if (reportedUser && reportedUser.email) {
+            await sendEmailNotification(
+                reportedUser.email,
+                'Reporte manejado',
+                'Tu reporte ha sido manejado y se ha decidido no eliminar el perfil de tutor.'
+            );
+        }
 
         ctx.body = {
             message: 'Review report ignored successfully',
