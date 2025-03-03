@@ -17,6 +17,7 @@ const rejectTutor = require('./routes/adminRoutes/tutors/rejectTutor');
 const banUser = require('./routes/adminRoutes/users/banUser');
 const getAllUsers = require('./routes/adminRoutes/users/getAllUsers');
 const unbanUser = require('./routes/adminRoutes/users/unbanUser');
+const getOwnUserProfile = require('./routes/userProtectedRoutes/users/getOwnUserProfile');
 
 const createReview = require('./routes/userProtectedRoutes/reviews/createReview');
 
@@ -47,6 +48,7 @@ const getTutorReportHistory = require('./routes/adminRoutes/reportHistory/getTut
 
 // Users
 router.get('/users/:id', getUserProfile);
+router.get('/users-self', getOwnUserProfile);
 router.post('/users', createUser);
 router.patch('/users/ban/:id', banUser);
 router.get('/users', getAllUsers);

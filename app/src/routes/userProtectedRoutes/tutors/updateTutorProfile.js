@@ -1,5 +1,21 @@
 const db = require('../../../models');
 const checkVerifiedUser = require('../../authorization/checkVerifiedUser');
+const { uploadFile } = require('../../../services/s3');
+
+async function uploadProfilePicture(userId, photo) {
+    if (!photo) {
+        return null;
+    }
+
+    try {
+        const imageKey = `tutor_${userId}_profile_picture.jpg`;
+        const imagePath = await uploadFile(imageKey, photo);
+        return imagePath;
+    } catch (error) {
+        console.error('Error uploading Profile Picture: ', error);
+        return "https://interac-ciones.s3.amazonaws.com/default.jpg";
+    }
+}
 
 async function updateTutorProfileDetails(tutorProfile, details) {
     tutorProfile.description = details.description || tutorProfile.description;
@@ -12,6 +28,9 @@ async function updateTutorProfileDetails(tutorProfile, details) {
 }
 
 async function updateTutorCourses(tutorId, courses) {
+    if (!courses){
+        return;
+    }
     const parsedCourses = JSON.parse(courses);
     await db.TutorCourses.destroy({ where: { idTutor: tutorId } });
     for (const course of parsedCourses) {
@@ -23,6 +42,9 @@ async function updateTutorCourses(tutorId, courses) {
 }
 
 async function updateTutorSubjects(tutorId, subjects) {
+    if (!subjects){
+        return;
+    }
     const parsedSubjects = JSON.parse(subjects);
     await db.TutorSubjects.destroy({ where: { idTutor: tutorId } });
     for (const subject of parsedSubjects) {
@@ -54,7 +76,9 @@ module.exports = async (ctx) => {
             return;
         }
 
-        const { description, courses, subjects, photo, contactNumber, priceDescription } = ctx.request.body;
+        const { description, courses, subjects, contactNumber, priceDescription } = ctx.request.body;
+        const photo = ctx.request.files.photo;
+        const photoLink = await uploadProfilePicture(user.id, photo);
 
         const tutorProfile = await db.TutorProfile.findOne({ where: { userId: user.id } });
         if (!tutorProfile) {
@@ -63,7 +87,7 @@ module.exports = async (ctx) => {
             return;
         }
 
-        await updateTutorProfileDetails(tutorProfile, { description, priceDescription, photo, contactNumber });
+        await updateTutorProfileDetails(tutorProfile, { description, priceDescription, photo: (photoLink || tutorProfile.photo), contactNumber });
         await updateTutorCourses(tutorProfile.id, courses);
         await updateTutorSubjects(tutorProfile.id, subjects);
 
