@@ -3,6 +3,7 @@ const checkVerifiedUser = require('../../authorization/checkVerifiedUser');
 const updateReviewsPerTutor = require('../../auxilaryFunctions/ReviewsPerTutor/updateTable');
 const createInitialReviewsPerTutorRecord = require('../../auxilaryFunctions/ReviewsPerTutor/createInitialRecord');
 const { sendEmailNotification } = require('../../../services/emailService');
+const { Op } = require('sequelize');
 
 async function getUserByToken(token) {
     return await db.User.findOne({
@@ -43,6 +44,23 @@ async function notifyTutorOfNewReview(tutorUser, rating, content) {
     }
 }
 
+async function hasUserCommentedRecently(userId, tutorId) {
+    const twoMonthsAgo = new Date();
+    twoMonthsAgo.setMonth(twoMonthsAgo.getMonth() - 2);
+
+    const recentReview = await db.ReviewMessage.findOne({
+        where: {
+            userId,
+            tutorId,
+            createdAt: {
+                [Op.gte]: twoMonthsAgo,
+            },
+        },
+    });
+
+    return !!recentReview;
+}
+
 module.exports = async(ctx) => {
     try {
         const userToken = await checkVerifiedUser(ctx);
@@ -61,6 +79,15 @@ module.exports = async(ctx) => {
 
         if (user.id === tutor.userId) {
             throw new Error('User cannot review themselves');
+        }
+
+        const hasCommentedRecently = await hasUserCommentedRecently(user.id, tutorId);
+        if (hasCommentedRecently) {
+            ctx.body = {
+                message: 'User has already commented on this tutor in the last 2 months',
+            };
+            ctx.status = 429;
+            return;
         }
 
         const review = await createReview(user.id, tutorId, rating, content);

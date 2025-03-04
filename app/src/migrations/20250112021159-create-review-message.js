@@ -34,7 +34,7 @@ module.exports = {
       },
       content: {
         allowNull: false,
-        type: Sequelize.STRING(1000)
+        type: Sequelize.STRING(500)
       },
       createdAt: {
         allowNull: false,
