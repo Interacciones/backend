@@ -23,14 +23,11 @@ module.exports = async (ctx) => {
 		return;
 		}
 
-		const subject = 'Response to Your Complain';
+		const subject = 'Respuesta a su contacto con nosotros';
 		const body = `
-		Dear ${name} ${lastName},
+		Estimad@ ${name} ${lastName},
 
 		${content}
-
-		Best regards,
-		Your Support Team
 		`;
 		await sendEmailNotification(email, subject, body);
 
