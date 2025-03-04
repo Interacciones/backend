@@ -44,6 +44,11 @@ const getAdminStats = require('./routes/adminRoutes/stats/getAdminStats');
 const getReviewReportHistory = require('./routes/adminRoutes/reportHistory/getReviewReportHistory');
 const getTutorReportHistory = require('./routes/adminRoutes/reportHistory/getTutorReportHistory');
 
+const createComplain = require('./routes/unprotectedRoutes/complains/createComplain');
+const getAllComplains = require('./routes/adminRoutes/complains/complains');
+const handleComplain = require('./routes/adminRoutes/complains/handleComplain');
+const deleteComplain = require('./routes/adminRoutes/complains/deleteComplain');
+
 // Routes
 
 // Users
@@ -69,12 +74,19 @@ router.post('/reviews', createReview);
 
 // Send Email
 router.post("/send-email", sendEmail);
+
 // Study Subjects
 router.get('/subjects', getAllStudySubjects);
 
 // Admin
 router.get('/check-admin', checkAdminStatus);
 router.get('/admin-stats', getAdminStats);
+
+// Complains
+router.post('/contact', createComplain);
+router.get('/admin/complains', getAllComplains);
+router.patch('/admin/complains/:id', handleComplain)
+router.delete('/admin/complains/:id', deleteComplain);
 
 // Reviews Reports
 router.post('/reports/review', createReportOfReview);
