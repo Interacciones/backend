@@ -40,7 +40,7 @@ async function deleteReport(reportId) {
 async function getUserById(userId) {
     return await db.User.findOne({
         where: { id: userId },
-        attributes: ['email'],
+        attributes: ['name', 'lastName', 'email'],
     });
 }
 
@@ -92,7 +92,7 @@ module.exports = async (ctx) => {
             await sendEmailNotification(
                 createdUser.email,
                 'Comentario eliminado',
-                'Tu comentario ha sido eliminado debido a un reporte.'
+                'Tu comentario ha sido eliminado debido a un reporte. Esta fue la decisión: ' + decisionArgument
             );
         }
 
@@ -100,7 +100,7 @@ module.exports = async (ctx) => {
             await sendEmailNotification(
                 reportedUser.email,
                 'Reporte manejado',
-                'Tu reporte ha sido manejado y el comentario ha sido eliminado.'
+                'Tu reporte ha sido manejado y el comentario del usuario llamado ' + createdUser.name + ' ha sido eliminado. Esta fue la decisión: ' + decisionArgument
             );
         }
 

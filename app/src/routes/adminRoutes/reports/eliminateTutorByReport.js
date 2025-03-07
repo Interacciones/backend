@@ -45,7 +45,7 @@ async function deleteReport(reportId) {
 async function getUserById(userId) {
     return await db.User.findOne({
         where: { id: userId },
-        attributes: ['email'],
+        attributes: ['name', 'lastName', 'email'],
     });
 }
 
@@ -98,7 +98,7 @@ module.exports = async (ctx) => {
             await sendEmailNotification(
                 createdUser.email,
                 'Perfil de tutor eliminado',
-                'Tu perfil de tutor ha sido eliminado debido a un reporte.'
+                'Tu perfil de tutor ha sido eliminado debido a un reporte. Esta fue la decisión: ' + decisionArgument
             );
         }
 
@@ -106,7 +106,7 @@ module.exports = async (ctx) => {
             await sendEmailNotification(
                 reportedUser.email,
                 'Reporte manejado',
-                'Tu reporte ha sido manejado y el perfil de tutor ha sido eliminado.'
+                'Tu reporte ha sido manejado y el perfil del tutor llamado ' + createdUser.name + ' ' + createdUser.lastName + ' ha sido eliminado. Esta fue la decisión: ' + decisionArgument
             );
         }
 

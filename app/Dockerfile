@@ -10,5 +10,5 @@ COPY package*.json ./
 COPY . .
 RUN npm install
 RUN npm install -g sequelize-cli
-CMD sh -c "sequelize db:migrate && sequelize db:seed:all && node src/app.js"
+CMD sh -c "sequelize db:migrate && node src/app.js"
 EXPOSE 3000
