@@ -23,6 +23,18 @@ async function getPendingReportsCount() {
     return pendingTutorReports + pendingReviewReports;
 }
 
+async function getTotalComplainsCount() {
+    return await db.Complain.count();
+}
+
+async function getTotalTutorPriorityCount() {
+    return await db.TutorPriority.count();
+}
+
+async function getTotalTutorProfilesCount() {
+    return await db.TutorProfile.count();
+}
+
 module.exports = async (ctx) => {
     try {
         const tokenAdmin = await checkAdmin(ctx);
@@ -37,6 +49,9 @@ module.exports = async (ctx) => {
         const unpublishedTutorsCount = await getUnpublishedTutorsCount();
         const totalUsersCount = await getTotalUsersCount();
         const pendingReportsCount = await getPendingReportsCount();
+        const totalComplainsCount = await getTotalComplainsCount();
+        const totalTutorPriorityCount = await getTotalTutorPriorityCount();
+        const totalTutorProfilesCount = await getTotalTutorProfilesCount();
 
         ctx.body = {
             message: 'Admin stats fetched successfully',
@@ -44,6 +59,9 @@ module.exports = async (ctx) => {
                 unpublishedTutorsCount,
                 totalUsersCount,
                 pendingReportsCount,
+                totalComplainsCount,
+                totalTutorPriorityCount,
+                totalTutorProfilesCount,
             },
         };
         ctx.status = 200;

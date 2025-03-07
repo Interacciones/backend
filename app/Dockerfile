@@ -5,10 +5,10 @@
 # https://stackoverflow.com/questions/38882654/docker-entrypoint-running-bash-script-gets-permission-denied
 
 FROM node:16-alpine
-WORKDIR /koa-app
+WORKDIR /app
 COPY package*.json ./
 COPY . .
 RUN npm install
 RUN npm install -g sequelize-cli
-CMD sh -c "sequelize db:migrate && node src/app.js"
+CMD sh -c "sequelize db:migrate && sequelize db:seed:all && node src/app.js"
 EXPOSE 3000
