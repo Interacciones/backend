@@ -49,6 +49,8 @@ const getAllComplains = require('./routes/adminRoutes/complains/complains');
 const handleComplain = require('./routes/adminRoutes/complains/handleComplain');
 const deleteComplain = require('./routes/adminRoutes/complains/deleteComplain');
 
+const priority = require('./routes/adminRoutes/priority/priority');
+
 // Routes
 
 // Users
@@ -105,5 +107,8 @@ router.get('/reports/tutor', getUnreviewedTutorReports);
 // Report History
 router.get('/report-history/review', getReviewReportHistory);
 router.get('/report-history/tutor', getTutorReportHistory);
+
+// Priority
+router.post('/admin/priority', priority);
 
 module.exports = router;

@@ -25,6 +25,11 @@ async function getTutorProfiles(limit, offset, filters) {
       model: db.ReviewsPerTutor,
       attributes: ['avgRating'],
     },
+    {
+      model: db.TutorPriority,
+      attributes: [], // No necesitamos atributos de TutorPriority, solo la relación
+      required: false, // LEFT JOIN
+    },
   ];
 
   if (curso) {
@@ -49,10 +54,22 @@ async function getTutorProfiles(limit, offset, filters) {
 
   return await db.TutorProfile.findAndCountAll({
     where: whereClause,
-    attributes: ['id', 'description', 'photo', 'priceDescription', 'contactNumber', 'isPublished'],
+    attributes: [
+      'id', 
+      'description', 
+      'photo', 
+      'priceDescription', 
+      'contactNumber', 
+      'isPublished',
+      [db.Sequelize.literal('"TutorPriority"."idTutor" IS NOT NULL'), 'hasPriority']
+    ],
     include: includeClause,
     limit,
     offset,
+    order: [
+      [db.Sequelize.literal('"hasPriority"'), 'DESC'], // Prioriza los tutores en TutorPriority
+      ['id', 'ASC'], // Orden secundario por id
+    ],
   });
 }
 
