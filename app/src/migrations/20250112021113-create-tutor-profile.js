@@ -15,19 +15,21 @@ module.exports = {
           model: 'Users',
           key: 'id'
         },
+        unique: true,
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE'
       },
       description: {
         allowNull: false,
-        type: Sequelize.STRING(2500)
+        type: Sequelize.STRING(1000)
       },
       photo: {
         type: Sequelize.STRING
       },
-      contactMail: {
+      contactNumber: {
         allowNull: false,
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        unique: true
       },
       isPublished: {
         defaultValue: false,

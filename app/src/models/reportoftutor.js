@@ -5,7 +5,6 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       ReportOfTutor.belongsTo(models.User, { foreignKey: 'userId' });
       ReportOfTutor.belongsTo(models.TutorProfile, { foreignKey: 'tutorId' });
-      ReportOfTutor.hasMany(models.ReportHistoryOfTutor, { foreignKey: 'reportId' });
     }
   }
   ReportOfTutor.init({

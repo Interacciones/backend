@@ -5,10 +5,11 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       TutorProfile.hasMany(models.ReviewMessage, { foreignKey: 'tutorId' });
       TutorProfile.hasMany(models.ReportOfTutor, { foreignKey: 'tutorId' });
-      TutorProfile.hasMany(models.TutorPriority, { foreignKey: 'idTutor' });
+      TutorProfile.hasOne(models.TutorPriority, { foreignKey: 'idTutor' });
       TutorProfile.hasMany(models.TutorSubjects, { foreignKey: 'idTutor' });
       TutorProfile.hasMany(models.TutorCourses, { foreignKey: 'idTutor' });
       TutorProfile.belongsTo(models.User, { foreignKey: 'userId' });
+      TutorProfile.hasOne(models.ReviewsPerTutor, { foreignKey: 'tutorId' });
     }
   }
   TutorProfile.init({
@@ -16,7 +17,7 @@ module.exports = (sequelize, DataTypes) => {
     description: DataTypes.STRING,
     priceDescription: DataTypes.STRING,
     photo: DataTypes.STRING,
-    contactMail: DataTypes.STRING,
+    contactNumber: DataTypes.STRING,
     isPublished: DataTypes.BOOLEAN
   }, {
     sequelize,

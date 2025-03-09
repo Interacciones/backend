@@ -10,10 +10,20 @@ require('dotenv').config();
 const Koa = require('koa');
 const koaBody = require('koa-body').default;
 const router = require('./routes');
+const cors = require('@koa/cors');
 
 const PORT = process.env.PORT || 3000;
 
 const app = new Koa();
+
+
+app.use(cors(
+  {
+    origin: '*',
+    allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+    allowHeaders: ['Content-Type', 'Content-Length', 'Authorization', 'Cache-Control', 'Pragma', 'Accept', 'User-Agent'],
+  }
+));
 
 app.use(
   koaBody({
