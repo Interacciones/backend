@@ -40,6 +40,10 @@ const ignoreReviewReport = require('./routes/adminRoutes/reports/ignoreReviewRep
 const ignoreTutorReport = require('./routes/adminRoutes/reports/ignoreTutorReport');
 
 const getAdminStats = require('./routes/adminRoutes/stats/getAdminStats');
+const getAmountOfCommentsPerUser = require('./routes/adminRoutes/stats/getAmountOfCommentsPerUser');
+
+const addStudySubject = require('./routes/adminRoutes/studySubjects/addStudySubject');
+const deleteStudySubject = require('./routes/adminRoutes/studySubjects/deleteStudySubject');
 
 const getReviewReportHistory = require('./routes/adminRoutes/reportHistory/getReviewReportHistory');
 const getTutorReportHistory = require('./routes/adminRoutes/reportHistory/getTutorReportHistory');
@@ -48,6 +52,8 @@ const createComplain = require('./routes/unprotectedRoutes/complains/createCompl
 const getAllComplains = require('./routes/adminRoutes/complains/complains');
 const handleComplain = require('./routes/adminRoutes/complains/handleComplain');
 const deleteComplain = require('./routes/adminRoutes/complains/deleteComplain');
+
+const priority = require('./routes/adminRoutes/priority/priority');
 
 // Routes
 
@@ -77,15 +83,18 @@ router.post("/send-email", sendEmail);
 
 // Study Subjects
 router.get('/subjects', getAllStudySubjects);
+router.post('/admin/subjects', addStudySubject);
+router.delete('/admin/subjects/:id', deleteStudySubject);
 
 // Admin
 router.get('/check-admin', checkAdminStatus);
 router.get('/admin-stats', getAdminStats);
+router.get('/admin-stats/comments-per-user', getAmountOfCommentsPerUser);
 
 // Complains
 router.post('/contact', createComplain);
 router.get('/admin/complains', getAllComplains);
-router.patch('/admin/complains/:id', handleComplain)
+router.patch('/admin/complains/:id', handleComplain);
 router.delete('/admin/complains/:id', deleteComplain);
 
 // Reviews Reports
@@ -105,5 +114,8 @@ router.get('/reports/tutor', getUnreviewedTutorReports);
 // Report History
 router.get('/report-history/review', getReviewReportHistory);
 router.get('/report-history/tutor', getTutorReportHistory);
+
+// Priority
+router.post('/admin/priority', priority);
 
 module.exports = router;

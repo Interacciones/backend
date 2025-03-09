@@ -21,7 +21,7 @@ module.exports = {
       },
       description: {
         allowNull: false,
-        type: Sequelize.STRING(2500)
+        type: Sequelize.STRING(1000)
       },
       photo: {
         type: Sequelize.STRING
