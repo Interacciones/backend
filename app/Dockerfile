@@ -4,7 +4,7 @@
 # https://stackoverflow.com/questions/55483781/how-to-create-postgres-database-and-run-migration-when-docker-compose-up
 # https://stackoverflow.com/questions/38882654/docker-entrypoint-running-bash-script-gets-permission-denied
 
-FROM node:16-alpine
+FROM node:20-alpine
 WORKDIR /app
 COPY package*.json ./
 COPY . .
