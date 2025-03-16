@@ -12,7 +12,7 @@ const getTutorById = async (tutorId) => {
           include: [
             {
               model: db.StudySubjects,
-              attributes: ['subject'],
+              attributes: ['id', 'subject'],
             },
           ],
         },
@@ -76,7 +76,10 @@ module.exports = async (ctx) => {
       name: tutorData.User.name,
       lastName: tutorData.User.lastName,
       email: tutorData.User.email,
-      subjects: tutorData.TutorSubjects.map(subject => subject.StudySubject.subject),
+      subjects: tutorData.TutorSubjects.map(subject => ({
+        id: subject.StudySubject.id,
+        subject: subject.StudySubject.subject,
+      })),
       courses: tutorData.TutorCourses.map(course => course.subject),
       avgRating: tutorData.ReviewsPerTutor ? tutorData.ReviewsPerTutor.avgRating : null,
       reviewAmount: tutorData.ReviewsPerTutor ? tutorData.ReviewsPerTutor.reviewAmount : null,

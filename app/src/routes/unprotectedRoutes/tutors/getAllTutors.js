@@ -5,16 +5,11 @@ const ALLOWED_QUANTITIES = [9, 15, 21];
 const DEFAULT_QUANTITY = 15;
 
 async function getTutorProfiles(limit, offset, filters) {
-  const { nombre, curso, area } = filters;
+  const { course, idSubject } = filters;
 
   const whereClause = {
     isPublished: true,
   };
-
-  if (nombre) {
-    whereClause['$User.name$'] = { [Op.like]: `%${nombre}%` };
-    whereClause['$User.lastName$'] = { [Op.like]: `%${nombre}%` };
-  }
 
   const includeClause = [
     {
@@ -27,23 +22,22 @@ async function getTutorProfiles(limit, offset, filters) {
     },
     {
       model: db.TutorPriority,
-      attributes: [], // No necesitamos atributos de TutorPriority, solo la relación
-      required: false, // LEFT JOIN
+      required: false,
     },
   ];
 
-  if (curso) {
+  if (course) {
     includeClause.push({
       model: db.TutorCourses,
-      where: { subject: { [Op.like]: `%${curso}%` } },
+      where: { subject: { [Op.like]: `%${course}%` } },
       attributes: [],
     });
   }
 
-  if (area) {
+  if (idSubject) {
     includeClause.push({
       model: db.TutorSubjects,
-      where: { '$StudySubjects.subject$': { [Op.like]: `%${area}%` } },
+      where: { idSubject },
       include: {
         model: db.StudySubjects,
         attributes: [],
@@ -60,15 +54,14 @@ async function getTutorProfiles(limit, offset, filters) {
       'photo', 
       'priceDescription', 
       'contactNumber', 
-      'isPublished',
-      [db.Sequelize.literal('"TutorPriority"."idTutor" IS NOT NULL'), 'hasPriority']
+      'isPublished'
     ],
     include: includeClause,
     limit,
     offset,
     order: [
-      [db.Sequelize.literal('"hasPriority"'), 'DESC'], // Prioriza los tutores en TutorPriority
-      ['id', 'ASC'], // Orden secundario por id
+      [db.TutorPriority, 'idTutor', 'ASC'],
+      ['id', 'ASC'],
     ],
   });
 }
@@ -120,12 +113,12 @@ async function getTutorProfilesWithSubjectsAndCourses(limit, offset, filters) {
 
 module.exports = async (ctx) => {
   try {
-    const { cantidad, pagina, nombre, curso, area } = ctx.query;
+    const { cantidad, pagina, course, idSubject } = ctx.query;
     const limit = ALLOWED_QUANTITIES.includes(parseInt(cantidad)) ? parseInt(cantidad) : DEFAULT_QUANTITY;
     const page = parseInt(pagina) || 1;
     const offset = (page - 1) * limit;
 
-    const filters = { nombre, curso, area };
+    const filters = { course, idSubject };
 
     const { profiles, totalCount } = await getTutorProfilesWithSubjectsAndCourses(limit, offset, filters);
 

@@ -3,3 +3,4 @@ app/.env
 .env
 node_modules
 app/src/firebase/serviceAccount.json
+api.conf
