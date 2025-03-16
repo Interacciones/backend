@@ -4,13 +4,16 @@ module.exports = async (ctx) => {
     try {
         const getSubjects = async () => {
             return await db.StudySubjects.findAll({
-                attributes: ['subject'],
+                attributes: ['id', 'subject'], // Agregar el id del subject
             });
         };
 
         const subjects = await getSubjects();
 
-        const subjectsList = subjects.map(subject => subject.subject).join(', ');
+        const subjectsList = subjects.map(subject => ({
+            id: subject.id,
+            subject: subject.subject
+        }));
 
         ctx.body = {
             message: 'Subjects fetched successfully',
