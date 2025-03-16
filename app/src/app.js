@@ -29,6 +29,9 @@ app.use(
   koaBody({
     multipart: true,
     keepExtensions: true,
+    formidable: {
+      maxFileSize: 5 * 1024 * 1024, // 5MB como límite de archivo
+    },
   }),
 );
 

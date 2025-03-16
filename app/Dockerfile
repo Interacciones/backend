@@ -8,7 +8,7 @@ FROM node:20-alpine
 WORKDIR /app
 COPY package*.json ./
 COPY . .
-RUN npm install
+RUN npm install --legacy-peer-deps
 RUN npm install -g sequelize-cli
 CMD sh -c "sequelize db:migrate && node src/app.js"
 EXPOSE 3000
