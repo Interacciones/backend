@@ -7,9 +7,6 @@ const DEFAULT_QUANTITY = 15;
 async function getTutorProfiles(limit, offset, filters) {
   const { course, idSubject } = filters;
 
-  console.log(course);
-  console.log(idSubject);
-
   const whereClause = {
     isPublished: true,
   };
@@ -25,7 +22,7 @@ async function getTutorProfiles(limit, offset, filters) {
     },
     {
       model: db.TutorPriority,
-      required: false, // No obligatorio para incluir tanto tutores con y sin prioridad
+      required: false,
     },
   ];
 
@@ -63,8 +60,8 @@ async function getTutorProfiles(limit, offset, filters) {
     limit,
     offset,
     order: [
-      [db.TutorPriority, 'idTutor', 'ASC'], // Priorizar tutores con prioridad
-      ['id', 'ASC'], // Orden secundario por id
+      [db.TutorPriority, 'idTutor', 'ASC'],
+      ['id', 'ASC'],
     ],
   });
 }

@@ -4,6 +4,7 @@
 module.exports = {
   async up (queryInterface, Sequelize) {
     await queryInterface.bulkInsert('StudySubjects', [
+      { subject: 'Otros', createdAt: new Date(), updatedAt: new Date() },
       { subject: 'Matemáticas', createdAt: new Date(), updatedAt: new Date() },
       { subject: 'Programación', createdAt: new Date(), updatedAt: new Date() },
       { subject: 'Ciencias', createdAt: new Date(), updatedAt: new Date() },
@@ -19,7 +20,8 @@ module.exports = {
       { subject: 'Marketing', createdAt: new Date(), updatedAt: new Date() },
       { subject: 'Psicología', createdAt: new Date(), updatedAt: new Date() },
       { subject: 'Política', createdAt: new Date(), updatedAt: new Date() },
-      { subject: 'Otros', createdAt: new Date(), updatedAt: new Date() },
+      { subject: 'Industrial', createdAt: new Date(), updatedAt: new Date() },
+      { subject: 'Comercial', createdAt: new Date(), updatedAt: new Date() },
     ], {});
   },
 
