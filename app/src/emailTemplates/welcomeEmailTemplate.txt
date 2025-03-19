@@ -1,0 +1,8 @@
+Hola! Que bueno que hayas iniciado sesión con nosotros. Antes de comenzar, te queríamos contar acerca de cómo funciona la verificación de usuario.
+
+Para la verificación de usuario, recibiras un mail, donde tienes que apretar un link para poder verificar tu usuario. El tema con este link es que a veces ocurre que aparece un pequeño error que dice que el link expiró y que se tiene que usar otro. Esto significa que ya se verificó su usuario y no tiene que hacerlo otra vez. Actualmente estamos trabajando para poder arreglar esto.
+
+Por último, una vez verificado el usuario, recomendamos cerrar sesión e iniciarla de nuevo, para que se registren los cambios de inmediato.
+
+Saludos,
+Equipo interacciones

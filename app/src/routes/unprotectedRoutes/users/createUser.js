@@ -1,4 +1,7 @@
 const db = require('../../../models');
+const { sendEmailNotification } = require('../../../services/emailService');
+const fs = require('fs');
+const path = require('path');
 
 module.exports = async (ctx) => {
   try {
@@ -9,6 +12,13 @@ module.exports = async (ctx) => {
     }
 
     const newUser = await createUser({ name, lastName, email, token });
+
+    const emailTemplatePath = path.join(__dirname, '../../../emailTemplates/welcomeEmailTemplate.txt');
+    let emailBody = fs.readFileSync(emailTemplatePath, 'utf8');
+
+    emailBody = emailBody.replace(/\n/g, '<br>');
+
+    await sendEmailNotification(email, 'Bienvenido a Interacciones', emailBody);
 
     return sendSuccessResponse(ctx, 201, 'User created successfully', newUser);
   } catch (error) {
