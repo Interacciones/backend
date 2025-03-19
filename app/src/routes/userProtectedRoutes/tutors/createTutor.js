@@ -1,6 +1,7 @@
 const db = require('../../../models');
 const checkVerifiedUser = require('../../authorization/checkVerifiedUser');
 const { uploadFile } = require('../../../services/s3');
+const { sendEmailNotification } = require('../../../services/emailService');
 
 async function uploadProfilePicture(userId, photo) {
     if (!photo) {
@@ -74,6 +75,13 @@ module.exports = async (ctx) => {
 
         await createTutorCourses(tutorProfile.id, parsedCourses);
         await createTutorSubjects(tutorProfile.id, parsedCourses);
+
+        // Send email notification about new tutor application
+        const adminEmail = process.env.GMAIL_USER;
+        const emailSubject = 'Nueva postulación de tutor';
+        const emailBody = `Hay una nueva postulación de tutor de ${user.name} ${user.lastName}.`;
+
+        await sendEmailNotification(adminEmail, emailSubject, emailBody);
 
         ctx.body = {
             message: 'Tutor profile created successfully',
