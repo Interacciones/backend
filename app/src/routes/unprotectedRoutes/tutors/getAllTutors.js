@@ -1,5 +1,5 @@
 const db = require('../../../models');
-const { Op } = require('sequelize');
+const { Op, fn, col, where } = require('sequelize');
 
 const ALLOWED_QUANTITIES = [9, 15, 21];
 const DEFAULT_QUANTITY = 15;
@@ -29,7 +29,14 @@ async function getTutorProfiles(limit, offset, filters) {
   if (course) {
     includeClause.push({
       model: db.TutorCourses,
-      where: { subject: { [Op.like]: `%${course}%` } },
+      where: where(
+        fn('LOWER', fn('UNACCENT', col('TutorCourses.subject'))),
+        { 
+          [Op.like]: `%${course.toLowerCase()
+                          .normalize('NFD')
+                          .replace(/[\u0300-\u036f]/g, '')}%` 
+        }
+      ),
       attributes: [],
     });
   }
