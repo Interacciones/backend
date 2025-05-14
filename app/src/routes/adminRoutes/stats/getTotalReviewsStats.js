@@ -6,6 +6,7 @@ async function getTotalReviewsCount() {
 }
 
 async function getReviewsPerUser() {
+    // First get users with their review counts
     const usersWithReviewCounts = await db.User.findAll({
         attributes: [
             'id',
@@ -23,7 +24,35 @@ async function getReviewsPerUser() {
         order: [[db.sequelize.fn('COUNT', db.sequelize.col('ReviewMessages.id')), 'DESC']]
     });
 
-    return usersWithReviewCounts;
+    // Then get detailed review information for each user
+    const detailedResults = await Promise.all(usersWithReviewCounts.map(async (user) => {
+        const reviews = await db.ReviewMessage.findAll({
+            where: { userId: user.id },
+            include: [{
+                model: db.TutorProfile,
+                include: [{
+                    model: db.User,
+                    attributes: ['id', 'name', 'lastName', 'email']
+                }]
+            }]
+        });
+
+        return {
+            id: user.id,
+            name: user.name,
+            lastName: user.lastName,
+            email: user.email,
+            reviewCount: parseInt(user.getDataValue('count'), 10),
+            reviewedTutors: reviews.map(review => ({
+                tutorId: review.TutorProfile.id,
+                tutorName: review.TutorProfile.User.name,
+                tutorLastName: review.TutorProfile.User.lastName,
+                tutorEmail: review.TutorProfile.User.email
+            }))
+        };
+    }));
+
+    return detailedResults;
 }
 
 module.exports = async (ctx) => {
@@ -44,13 +73,7 @@ module.exports = async (ctx) => {
             message: 'Review stats fetched successfully',
             data: {
                 totalReviewsCount,
-                reviewsPerUser: reviewsPerUser.map(user => ({
-                    id: user.id,
-                    name: user.name,
-                    lastName: user.lastName,
-                    email: user.email,
-                    reviewCount: parseInt(user.getDataValue('count'), 10)
-                }))
+                reviewsPerUser
             },
         };
         ctx.status = 200;
