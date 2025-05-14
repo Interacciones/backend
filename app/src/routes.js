@@ -55,6 +55,16 @@ const deleteComplain = require('./routes/adminRoutes/complains/deleteComplain');
 
 const priority = require('./routes/adminRoutes/priority/priority');
 
+// Entrepreneur Project Routes
+const getAllProjects = require('./routes/unprotectedRoutes/entrepreneurship/getAllProjects');
+const getProject = require('./routes/unprotectedRoutes/entrepreneurship/getProject');
+const createProject = require('./routes/userProtectedRoutes/entrepreneurship/createProject');
+const updateProject = require('./routes/userProtectedRoutes/entrepreneurship/updateProject');
+const getOwnProject = require('./routes/userProtectedRoutes/entrepreneurship/getOwnProject');
+const getAllUnacceptedProjects = require('./routes/adminRoutes/entrepreneurship/getAllUnacceptedProjects');
+const acceptProject = require('./routes/adminRoutes/entrepreneurship/acceptProject');
+const rejectProject = require('./routes/adminRoutes/entrepreneurship/rejectProject');
+
 // Routes
 
 // Users
@@ -117,5 +127,15 @@ router.get('/report-history/tutor', getTutorReportHistory);
 
 // Priority
 router.post('/admin/priority', priority);
+
+// Entrepreneur Projects
+router.get('/projects', getAllProjects);
+router.get('/projects/:id', getProject);
+router.post('/projects', createProject);
+router.patch('/projects/:id', updateProject);
+router.get('/projects-self', getOwnProject);
+router.get('/unaccepted-projects', getAllUnacceptedProjects);
+router.patch('/projects/accept/:id', acceptProject);
+router.delete('/projects/reject/:id', rejectProject);
 
 module.exports = router;
