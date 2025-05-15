@@ -1,10 +1,10 @@
 const db = require('../../../models');
 const { Op } = require('sequelize');
 
-const DEFAULT_LIMIT = 10;
+const DEFAULT_QUANTITY = 10;
 const DEFAULT_PAGE = 1;
 
-async function getAllEntrepreneurProjects(limit, offset) {
+async function getAllEntrepreneurProjects(quantity, offset) {
   return await db.EntrepreuneurProject.findAndCountAll({
     where: { isActive: true },
     attributes: ['id', 'name', 'description', 'instagramProfile', 'showContact'],
@@ -18,22 +18,22 @@ async function getAllEntrepreneurProjects(limit, offset) {
         attributes: ['id', 'photo'],
       }
     ],
-    limit,
+    quantity,
     offset,
-    order: [['createdAt', 'DESC']],
+    order: [['id', 'DESC']],
   });
 }
 
 module.exports = async (ctx) => {
   try {
     // Get pagination parameters from query
-    const { limit = DEFAULT_LIMIT, page = DEFAULT_PAGE } = ctx.query;
-    const parsedLimit = parseInt(limit) || DEFAULT_LIMIT;
+    const { quantity = DEFAULT_QUANTITY, page = DEFAULT_PAGE } = ctx.query;
+    const parsedQuantity = parseInt(quantity) || DEFAULT_QUANTITY;
     const parsedPage = parseInt(page) || DEFAULT_PAGE;
-    const offset = (parsedPage - 1) * parsedLimit;
+    const offset = (parsedPage - 1) * parsedQuantity;
 
     // Fetch projects with pagination
-    const { rows: projects, count: totalCount } = await getAllEntrepreneurProjects(parsedLimit, offset);
+    const { rows: projects, count: totalCount } = await getAllEntrepreneurProjects(parsedQuantity, offset);
 
     // Transform data for response
     const formattedProjects = projects.map(project => {
@@ -60,8 +60,8 @@ module.exports = async (ctx) => {
       pagination: {
         total: totalCount,
         page: parsedPage,
-        limit: parsedLimit,
-        totalPages: Math.ceil(totalCount / parsedLimit)
+        quantity: parsedQuantity,
+        totalPages: Math.ceil(totalCount / parsedQuantity)
       }
     };
     ctx.status = 200;

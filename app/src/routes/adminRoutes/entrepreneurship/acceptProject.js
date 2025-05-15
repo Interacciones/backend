@@ -1,5 +1,5 @@
 const db = require('../../../models');
-const checkAdminStatus = require('../../authorization/checkAdminStatus');
+const checkAdmin = require('../../authorization/checkAdmin');
 
 async function getProjectById(id) {
   return await db.EntrepreuneurProject.findByPk(id, {
@@ -15,7 +15,7 @@ async function getProjectById(id) {
 module.exports = async (ctx) => {
   try {
     // Check admin authorization
-    const isAdmin = await checkAdminStatus(ctx);
+    const isAdmin = await checkAdmin(ctx);
     if (!isAdmin) {
       ctx.body = { message: 'Unauthorized: Admin access required' };
       ctx.status = 401;

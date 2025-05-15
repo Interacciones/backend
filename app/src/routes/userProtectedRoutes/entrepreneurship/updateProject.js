@@ -1,14 +1,17 @@
 const db = require('../../../models');
 const checkVerifiedUser = require('../../authorization/checkVerifiedUser');
+const { uploadFile } = require('../../../services/s3Entrepreneurs');
 
-// Placeholder function for S3 upload - will be replaced by actual implementation later
 async function uploadProjectPhoto(projectId, photoIndex, photo) {
-  // This is a placeholder - in the real implementation, this would upload to S3
-  const imageKey = `project_${projectId}_photo_${photoIndex}.jpg`;
-  const imageUrl = `https://interac-ciones.s3.amazonaws.com/${imageKey}`;
-  
-  // Return fake S3 URL as placeholder
-  return imageUrl;
+  try {
+    const imageKey = `project_${projectId}_photo_${photoIndex}_${Date.now()}.jpg`;
+    const imageUrl = await uploadFile(imageKey, photo);
+    return imageUrl;
+  } catch (error) {
+    console.error('Error uploading project photo:', error);
+    // Return default image as fallback
+    return "https://interac-ciones.s3.amazonaws.com/default_project.jpg";
+  }
 }
 
 async function getUserProject(userId, projectId) {
