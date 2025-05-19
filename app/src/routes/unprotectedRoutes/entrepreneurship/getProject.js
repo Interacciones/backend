@@ -1,19 +1,24 @@
 const db = require('../../../models');
 
-async function getEntrepreneurProjectById(id) {
+async function getEntrepreneurProjectById(id, includeUser = false) {
+  const includeOptions = [
+    {
+      model: db.EntrepreneurProjectPhoto,
+      attributes: ['id', 'photo'],
+    }
+  ];
+  
+  if (includeUser) {
+    includeOptions.push({
+      model: db.User,
+      attributes: ['name', 'lastName', 'email'],
+    });
+  }
+
   return await db.EntrepreuneurProject.findOne({
     where: { id, isActive: true },
     attributes: ['id', 'name', 'description', 'instagramProfile', 'showContact'],
-    include: [
-      {
-        model: db.User,
-        attributes: ['name', 'lastName', 'email'],
-      },
-      {
-        model: db.EntrepreneurProjectPhoto,
-        attributes: ['id', 'photo'],
-      }
-    ]
+    include: includeOptions
   });
 }
 
@@ -29,6 +34,7 @@ module.exports = async (ctx) => {
       return;
     }
 
+    // First query to get basic project data including showContact flag
     const project = await getEntrepreneurProjectById(id);
 
     if (!project) {
@@ -40,20 +46,25 @@ module.exports = async (ctx) => {
     }
 
     const projectData = project.toJSON();
-    
-    const formattedProject = {
+    let formattedProject = {
       id: projectData.id,
       name: projectData.name,
       description: projectData.description,
       instagramProfile: projectData.instagramProfile,
-      showContact: projectData.showContact,
-      user: {
-        name: projectData.User.name,
-        lastName: projectData.User.lastName,
-        email: projectData.showContact ? projectData.User.email : null
-      },
       photos: projectData.EntrepreneurProjectPhotos.map(photo => photo.photo)
     };
+    
+    // If showContact is true, fetch user data in a second query
+    if (projectData.showContact) {
+      const projectWithUser = await getEntrepreneurProjectById(id, true);
+      const userData = projectWithUser.toJSON().User;
+      
+      formattedProject.user = {
+        name: userData.name,
+        lastName: userData.lastName,
+        email: userData.email
+      };
+    }
 
     ctx.body = {
       message: 'Project fetched successfully',

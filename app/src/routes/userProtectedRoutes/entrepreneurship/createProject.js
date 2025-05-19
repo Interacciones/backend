@@ -80,9 +80,30 @@ module.exports = async (ctx) => {
     }
 
     // Check if photos were uploaded
-    const photos = ctx.request.files && ctx.request.files.photos ? 
-      (Array.isArray(ctx.request.files.photos) ? ctx.request.files.photos : [ctx.request.files.photos]) : 
-      [];
+    let photos = [];
+    
+    // Check for photos with keys like photo0, photo1, etc.
+    if (ctx.request.files) {
+      const fileKeys = Object.keys(ctx.request.files);
+      // Filter keys that match pattern 'photo0', 'photo1', etc.
+      const photoKeys = fileKeys.filter(key => key.match(/^photo\d+$/));
+      
+      if (photoKeys.length > 0) {
+        // Sort keys numerically to preserve order
+        photoKeys.sort((a, b) => {
+          const numA = parseInt(a.replace('photo', ''));
+          const numB = parseInt(b.replace('photo', ''));
+          return numA - numB;
+        });
+        
+        // Get the photos in order
+        photos = photoKeys.map(key => ctx.request.files[key]);
+      } else if (ctx.request.files.photos) {
+        // Fallback to previous logic if photos are sent as an array
+        photos = Array.isArray(ctx.request.files.photos) ? 
+          ctx.request.files.photos : [ctx.request.files.photos];
+      }
+    }
       
     if (photos.length === 0) {
       ctx.body = {
