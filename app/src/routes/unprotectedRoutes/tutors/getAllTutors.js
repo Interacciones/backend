@@ -25,6 +25,24 @@ async function getTutorProfiles(limit, offset, filters) {
       required: false,
     },
   ];
+  
+  // Configure query options
+  const options = {
+    where: whereClause,
+    include: includeClause,
+    order: [
+      [db.TutorPriority, 'idTutor', 'ASC'],
+      ['id', 'ASC'],
+    ],
+    attributes: [
+      'id', 
+      'description', 
+      'photo', 
+      'priceDescription', 
+      'contactNumber', 
+      'isPublished'
+    ],
+  };
 
   if (course) {
     includeClause.push({
@@ -53,24 +71,13 @@ async function getTutorProfiles(limit, offset, filters) {
     });
   }
 
-  return await db.TutorProfile.findAndCountAll({
-    where: whereClause,
-    attributes: [
-      'id', 
-      'description', 
-      'photo', 
-      'priceDescription', 
-      'contactNumber', 
-      'isPublished'
-    ],
-    include: includeClause,
-    limit,
-    offset,
-    order: [
-      [db.TutorPriority, 'idTutor', 'ASC'],
-      ['id', 'ASC'],
-    ],
-  });
+  // Only add limit and offset if they are provided
+  if (limit !== null && offset !== null) {
+    options.limit = limit;
+    options.offset = offset;
+  }
+
+  return await db.TutorProfile.findAndCountAll(options);
 }
 
 async function getSubjectsForTutor(tutorId) {
@@ -91,7 +98,12 @@ async function getCoursesForTutor(tutorId) {
 }
 
 async function getTutorProfilesWithSubjectsAndCourses(limit, offset, filters) {
-  const { rows: profiles, count: totalCount } = await getTutorProfiles(limit, offset, filters);
+  // Get all profiles without limit and offset to count them properly
+  const { rows: allProfiles } = await getTutorProfiles(null, null, filters);
+  const totalCount = allProfiles.length;
+
+  // Now get the paginated profiles
+  const { rows: profiles } = await getTutorProfiles(limit, offset, filters);
 
   const profilesWithDetails = await Promise.all(
     profiles.map(async (profile) => {
