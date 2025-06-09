@@ -1,6 +1,7 @@
 const db = require('../../../models');
 const checkVerifiedUser = require('../../authorization/checkVerifiedUser');
 const { uploadFile } = require('../../../services/s3');
+const { sendEmailNotification } = require('../../../services/emailService');
 
 async function uploadProfilePicture(userId, photo) {
     if (!photo) {
@@ -90,6 +91,12 @@ module.exports = async (ctx) => {
         await updateTutorProfileDetails(tutorProfile, { description, priceDescription, photo: (photoLink || tutorProfile.photo), contactNumber });
         await updateTutorCourses(tutorProfile.id, courses);
         await updateTutorSubjects(tutorProfile.id, subjects);
+
+        const adminEmail = process.env.GMAIL_USER;
+        const emailSubject = 'Actualización de perfil de tutor';
+        const emailBody = `El tutor ${user.name} ${user.lastName} ha actualizado su perfil.`;
+
+        await sendEmailNotification(adminEmail, emailSubject, emailBody);
 
         ctx.body = {
             message: 'Tutor profile updated successfully',
