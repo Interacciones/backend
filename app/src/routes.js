@@ -64,6 +64,17 @@ const getOwnProject = require('./routes/userProtectedRoutes/entrepreneurship/get
 const getAllUnacceptedProjects = require('./routes/adminRoutes/entrepreneurship/getAllUnacceptedProjects');
 const acceptProject = require('./routes/adminRoutes/entrepreneurship/acceptProject');
 const rejectProject = require('./routes/adminRoutes/entrepreneurship/rejectProject');
+const deleteOwnProject = require('./routes/userProtectedRoutes/entrepreneurship/deleteOwnProject');
+const createEntrepreneurComment = require('./routes/userProtectedRoutes/entrepreneurship/createComment');
+const getEntrepreneurComments = require('./routes/unprotectedRoutes/entrepreneurship/getComments');
+const createEntrepreneurProjectReport = require('./routes/userProtectedRoutes/reports/createEntrepreneurProjectReport');
+const createEntrepreneurCommentReport = require('./routes/userProtectedRoutes/reports/createEntrepreneurCommentReport');
+const getUnreviewedEntrepreneurProjectReports = require('./routes/adminRoutes/entrepreneurship/getUnreviewedProjectReports');
+const getUnreviewedEntrepreneurCommentReports = require('./routes/adminRoutes/entrepreneurship/getUnreviewedCommentReports');
+const eliminateEntrepreneurProjectByReport = require('./routes/adminRoutes/entrepreneurship/eliminateProjectByReport');
+const eliminateEntrepreneurCommentByReport = require('./routes/adminRoutes/entrepreneurship/eliminateCommentByReport');
+const ignoreEntrepreneurProjectReport = require('./routes/adminRoutes/entrepreneurship/ignoreProjectReport');
+const ignoreEntrepreneurCommentReport = require('./routes/adminRoutes/entrepreneurship/ignoreCommentReport');
 
 // Routes
 
@@ -134,8 +145,19 @@ router.get('/projects/:id', getProject);
 router.post('/projects', createProject);
 router.patch('/projects/:id', updateProject);
 router.get('/projects-self', getOwnProject);
+router.delete('/projects/:id', deleteOwnProject);
+router.get('/projects/:projectId/comments', getEntrepreneurComments);
+router.post('/projects/:projectId/comments', createEntrepreneurComment);
 router.get('/unaccepted-projects', getAllUnacceptedProjects);
 router.patch('/projects/accept/:id', acceptProject);
 router.delete('/projects/reject/:id', rejectProject);
+router.post('/reports/project', createEntrepreneurProjectReport);
+router.post('/reports/project-comment', createEntrepreneurCommentReport);
+router.get('/reports/project', getUnreviewedEntrepreneurProjectReports);
+router.get('/reports/project-comment', getUnreviewedEntrepreneurCommentReports);
+router.patch('/reports/project/eliminate', eliminateEntrepreneurProjectByReport);
+router.patch('/reports/project/ignore', ignoreEntrepreneurProjectReport);
+router.patch('/reports/project-comment/eliminate', eliminateEntrepreneurCommentByReport);
+router.patch('/reports/project-comment/ignore', ignoreEntrepreneurCommentReport);
 
 module.exports = router;

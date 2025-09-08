@@ -128,12 +128,36 @@ module.exports = async (ctx) => {
     const { name, description, instagramProfile, showContact, photosToKeep } = ctx.request.body;
     
     // Handle photo updates
-    const newPhotos = ctx.request.files && ctx.request.files.photos ? 
-      (Array.isArray(ctx.request.files.photos) ? ctx.request.files.photos : [ctx.request.files.photos]) : 
-      [];
+    let newPhotos = [];
+    if (ctx.request.files) {
+      if (ctx.request.files.photos) {
+        newPhotos = Array.isArray(ctx.request.files.photos) ? ctx.request.files.photos : [ctx.request.files.photos];
+      } else {
+        const fileKeys = Object.keys(ctx.request.files);
+        const photoKeys = fileKeys.filter(key => key.match(/^photo\d+$/));
+        if (photoKeys.length > 0) {
+          photoKeys.sort((a, b) => parseInt(a.replace('photo', '')) - parseInt(b.replace('photo', '')));
+          newPhotos = photoKeys.map(key => ctx.request.files[key]);
+        }
+      }
+    }
     
     const currentPhotos = project.EntrepreneurProjectPhotos;
     
+    // Enforce max 5 photos total (kept + new)
+    const keepPhotoIds = photosToKeep ? photosToKeep.split(',').map(Number).filter(Number.isFinite) : [];
+    const keptCount = keepPhotoIds.length > 0
+      ? (Array.isArray(project.EntrepreneurProjectPhotos)
+          ? project.EntrepreneurProjectPhotos.filter(p => keepPhotoIds.includes(p.id)).length
+          : 0)
+      : 0;
+    const prospectiveTotal = keptCount + (newPhotos ? newPhotos.length : 0);
+    if (prospectiveTotal > 5) {
+      ctx.body = { message: 'A maximum of 5 photos is allowed' };
+      ctx.status = 400;
+      return;
+    }
+
     // Update project data
     const updatedProject = await updateProjectData(project, {
       name,

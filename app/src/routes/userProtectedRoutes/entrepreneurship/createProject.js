@@ -113,6 +113,14 @@ module.exports = async (ctx) => {
       return;
     }
 
+    if (photos.length > 5) {
+      ctx.body = {
+        message: 'A maximum of 5 photos is allowed',
+      };
+      ctx.status = 400;
+      return;
+    }
+
     // Create the project
     const project = await createEntrepreneurProject(user.id, {
       name,
