@@ -1,6 +1,8 @@
 const db = require('../../../models');
 const checkVerifiedUser = require('../../authorization/checkVerifiedUser');
-const { uploadFile } = require('../../../services/s3Entrepreneurs');
+const { uploadFile, deleteFile } = require('../../../services/s3Entrepreneurs');
+const { sendEmailNotification } = require('../../../services/emailService');
+const adminProjectNotificationTemplate = require('../../../emailTemplates/adminProjectNotificationTemplate');
 
 async function uploadProjectPhoto(projectId, photoIndex, photo) {
   try {
@@ -47,6 +49,15 @@ async function handleProjectPhotos(projectId, currentPhotos, newPhotos, photosTo
   if (Array.isArray(currentPhotos) && keepPhotoIds.length > 0) {
     for (const photo of currentPhotos) {
       if (!keepPhotoIds.includes(photo.id)) {
+        // Delete from S3 first
+        try {
+          await deleteFile(photo.photo);
+        } catch (s3Error) {
+          console.error(`❌ Failed to delete S3 file during update: ${photo.photo}`, s3Error);
+          // Continue with database deletion even if S3 deletion fails
+        }
+        
+        // Delete from database
         await db.EntrepreneurProjectPhoto.destroy({
           where: { id: photo.id }
         });
@@ -56,6 +67,17 @@ async function handleProjectPhotos(projectId, currentPhotos, newPhotos, photosTo
     }
   } else if (Array.isArray(currentPhotos) && keepPhotoIds.length === 0) {
     // Delete all existing photos if keepPhotoIds is empty
+    // First delete from S3
+    for (const photo of currentPhotos) {
+      try {
+        await deleteFile(photo.photo);
+      } catch (s3Error) {
+        console.error(`❌ Failed to delete S3 file during update: ${photo.photo}`, s3Error);
+        // Continue with database deletion even if S3 deletion fails
+      }
+    }
+    
+    // Then delete from database
     await db.EntrepreneurProjectPhoto.destroy({
       where: { projectId }
     });
@@ -168,6 +190,27 @@ module.exports = async (ctx) => {
 
     // Handle photo updates (delete unwanted photos, add new ones)
     const photoUrls = await handleProjectPhotos(project.id, currentPhotos, newPhotos, photosToKeep);
+
+    // Send notification email to admin about project update
+    try {
+      const adminEmail = process.env.GMAIL_USER;
+      const userFullName = `${user.name} ${user.lastName}`;
+      const emailSubject = '✏️ Proyecto Actualizado - Requiere Revisión';
+      const emailBody = adminProjectNotificationTemplate(
+        'UPDATED',
+        userFullName,
+        user.email,
+        updatedProject.name,
+        updatedProject.description,
+        updatedProject.id
+      );
+      
+      await sendEmailNotification(adminEmail, emailSubject, emailBody);
+      console.log(`✅ Admin notification sent for updated project: ${updatedProject.name}`);
+    } catch (emailError) {
+      console.error('❌ Failed to send admin notification:', emailError);
+      // Don't fail the project update if email fails
+    }
 
     // Return success response
     ctx.body = {

@@ -1,6 +1,8 @@
 const db = require('../../../models');
 const checkVerifiedUser = require('../../authorization/checkVerifiedUser');
 const { uploadFile } = require('../../../services/s3Entrepreneurs');
+const { sendEmailNotification } = require('../../../services/emailService');
+const adminProjectNotificationTemplate = require('../../../emailTemplates/adminProjectNotificationTemplate');
 
 async function uploadProjectPhoto(projectId, photoIndex, photo) {
   try {
@@ -131,6 +133,27 @@ module.exports = async (ctx) => {
 
     // Save project photos
     const photoUrls = await saveProjectPhotos(project.id, photos);
+
+    // Send notification email to admin about new project
+    try {
+      const adminEmail = process.env.GMAIL_USER;
+      const userFullName = `${user.name} ${user.lastName}`;
+      const emailSubject = '📝 Nuevo Proyecto Creado - Requiere Revisión';
+      const emailBody = adminProjectNotificationTemplate(
+        'CREATED',
+        userFullName,
+        user.email,
+        project.name,
+        project.description,
+        project.id
+      );
+      
+      await sendEmailNotification(adminEmail, emailSubject, emailBody);
+      console.log(`✅ Admin notification sent for new project: ${project.name}`);
+    } catch (emailError) {
+      console.error('❌ Failed to send admin notification:', emailError);
+      // Don't fail the project creation if email fails
+    }
 
     // Return success response
     ctx.body = {

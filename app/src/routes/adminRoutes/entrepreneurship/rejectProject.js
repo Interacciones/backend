@@ -1,5 +1,8 @@
 const db = require('../../../models');
 const checkAdmin = require('../../authorization/checkAdmin');
+const { sendEmailNotification } = require('../../../services/emailService');
+const projectRejectedTemplate = require('../../../emailTemplates/projectRejectedTemplate');
+const { deleteFile } = require('../../../services/s3Entrepreneurs');
 
 async function getProjectById(id) {
   return await db.EntrepreuneurProject.findByPk(id, {
@@ -13,15 +16,38 @@ async function getProjectById(id) {
 }
 
 async function deleteProjectAndPhotos(projectId) {
-  // First, delete all associated photos
-  await db.EntrepreneurProjectPhoto.destroy({
-    where: { projectId }
-  });
-  
-  // Then delete the project itself
-  await db.EntrepreuneurProject.destroy({
-    where: { id: projectId }
-  });
+  try {
+    // First, get all photo URLs before deleting from database
+    const photos = await db.EntrepreneurProjectPhoto.findAll({
+      where: { projectId },
+      attributes: ['photo']
+    });
+
+    // Delete photos from S3 storage
+    for (const photo of photos) {
+      try {
+        await deleteFile(photo.photo);
+      } catch (s3Error) {
+        console.error(`❌ Failed to delete S3 file: ${photo.photo}`, s3Error);
+        // Continue with deletion even if S3 deletion fails
+      }
+    }
+
+    // Delete photo records from database
+    await db.EntrepreneurProjectPhoto.destroy({
+      where: { projectId }
+    });
+    
+    // Delete the project itself
+    await db.EntrepreuneurProject.destroy({
+      where: { id: projectId }
+    });
+    
+    console.log(`✅ Successfully rejected and deleted project ${projectId} and ${photos.length} photos`);
+  } catch (error) {
+    console.error(`❌ Error in deleteProjectAndPhotos:`, error);
+    throw error;
+  }
 }
 
 module.exports = async (ctx) => {
@@ -55,21 +81,32 @@ module.exports = async (ctx) => {
       return;
     }
 
-    // Store some info for the response before deletion
+    // Store some info for the response and email before deletion
     const projectInfo = {
       id: project.id,
       name: project.name,
       user: {
         name: project.User.name,
-        lastName: project.User.lastName
+        lastName: project.User.lastName,
+        email: project.User.email
       }
     };
 
+    // Send email notification to user about project rejection before deletion
+    try {
+      const userFullName = `${project.User.name} ${project.User.lastName}`;
+      const emailSubject = 'Actualización sobre tu proyecto - Interacciones';
+      const emailBody = projectRejectedTemplate(userFullName, project.name);
+      
+      await sendEmailNotification(project.User.email, emailSubject, emailBody);
+      console.log(`✅ Rejection email sent to user: ${project.User.email}`);
+    } catch (emailError) {
+      console.error('❌ Failed to send rejection email:', emailError);
+      // Don't fail the rejection process if email fails
+    }
+
     // Delete the project and its photos
     await deleteProjectAndPhotos(id);
-
-    // You could also add email notification here to notify the user that their project was rejected
-    // Similar to what's done in the tutor rejection process
 
     // Return success response
     ctx.body = {

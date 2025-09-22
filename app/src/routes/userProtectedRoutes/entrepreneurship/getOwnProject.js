@@ -1,16 +1,17 @@
 const db = require('../../../models');
 const checkVerifiedUser = require('../../authorization/checkVerifiedUser');
 
-async function getUserProject(userId) {
-  return await db.EntrepreuneurProject.findOne({
+async function getUserProjects(userId) {
+  return await db.EntrepreuneurProject.findAll({
     where: { userId },
-    attributes: ['id', 'name', 'description', 'instagramProfile', 'showContact'],
+    attributes: ['id', 'name', 'description', 'instagramProfile', 'showContact', 'isActive', 'createdAt', 'updatedAt'],
     include: [
       {
         model: db.EntrepreneurProjectPhoto,
         attributes: ['id', 'photo'],
       }
-    ]
+    ],
+    order: [['createdAt', 'DESC']] // Show newest projects first
   });
 }
 
@@ -35,42 +36,48 @@ module.exports = async (ctx) => {
       return;
     }
 
-    // Find the project that belongs to this user
-    const project = await getUserProject(user.id);
+    // Find all projects that belong to this user
+    const projects = await getUserProjects(user.id);
 
-    if (!project) {
+    if (!projects || projects.length === 0) {
       ctx.body = {
-        message: 'You have no project yet',
+        message: 'You have no projects yet',
+        data: []
       };
-      ctx.status = 404;
+      ctx.status = 200;
       return;
     }
 
-    // Format project data for response
-    const projectData = project.toJSON();
-    
-    const formattedProject = {
-      id: projectData.id,
-      name: projectData.name,
-      description: projectData.description,
-      instagramProfile: projectData.instagramProfile,
-      showContact: projectData.showContact,
-      photos: projectData.EntrepreneurProjectPhotos.map(photo => ({
-        id: photo.id,
-        url: photo.photo
-      }))
-    };
+    // Format projects data for response
+    const formattedProjects = projects.map(project => {
+      const projectData = project.toJSON();
+      return {
+        id: projectData.id,
+        name: projectData.name,
+        description: projectData.description,
+        instagramProfile: projectData.instagramProfile,
+        showContact: projectData.showContact,
+        isActive: projectData.isActive,
+        createdAt: projectData.createdAt,
+        updatedAt: projectData.updatedAt,
+        photos: projectData.EntrepreneurProjectPhotos.map(photo => ({
+          id: photo.id,
+          url: photo.photo
+        }))
+      };
+    });
 
     // Return success response
     ctx.body = {
-      message: 'Project fetched successfully',
-      data: formattedProject
+      message: 'Projects fetched successfully',
+      data: formattedProjects,
+      count: formattedProjects.length
     };
     ctx.status = 200;
   } catch (error) {
-    console.error('Error fetching user project:', error);
+    console.error('Error fetching user projects:', error);
     ctx.body = {
-      message: 'Failed to fetch project',
+      message: 'Failed to fetch projects',
       error: error.message
     };
     ctx.status = 500;

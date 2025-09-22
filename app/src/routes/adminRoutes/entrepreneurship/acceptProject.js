@@ -1,5 +1,7 @@
 const db = require('../../../models');
 const checkAdmin = require('../../authorization/checkAdmin');
+const { sendEmailNotification } = require('../../../services/emailService');
+const projectAcceptedTemplate = require('../../../emailTemplates/projectAcceptedTemplate');
 
 async function getProjectById(id) {
   return await db.EntrepreuneurProject.findByPk(id, {
@@ -46,8 +48,18 @@ module.exports = async (ctx) => {
     // Update project to active status
     await project.update({ isActive: true });
 
-    // You could also add email notification here to notify the user that their project was approved
-    // Similar to what's done in the tutor approval process
+    // Send email notification to user about project acceptance
+    try {
+      const userFullName = `${project.User.name} ${project.User.lastName}`;
+      const emailSubject = '¡Tu proyecto ha sido aprobado! - Interacciones';
+      const emailBody = projectAcceptedTemplate(userFullName, project.name);
+      
+      await sendEmailNotification(project.User.email, emailSubject, emailBody);
+      console.log(`✅ Acceptance email sent to user: ${project.User.email}`);
+    } catch (emailError) {
+      console.error('❌ Failed to send acceptance email:', emailError);
+      // Don't fail the approval process if email fails
+    }
 
     // Return success response
     ctx.body = {

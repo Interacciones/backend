@@ -1,4 +1,4 @@
-const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
+const { S3Client, PutObjectCommand, DeleteObjectCommand } = require("@aws-sdk/client-s3");
 const dotenv = require("dotenv");
 const fs = require("fs");
 
@@ -35,4 +35,40 @@ const uploadFile = async (name, file) => {
   }
 };
 
-module.exports = { uploadFile };
+const deleteFile = async (fileUrl) => {
+  try {
+    // Extract the S3 key from the full URL
+    // URL format: https://bucket.s3.region.amazonaws.com/key
+    const bucketName = process.env.AWS_BUCKET_NAME_ENTREPRENEURS;
+    const region = process.env.AWS_BUCKET_REGION;
+    const expectedPrefix = `https://${bucketName}.s3.${region}.amazonaws.com/`;
+    
+    if (!fileUrl.startsWith(expectedPrefix)) {
+      console.warn(`File URL doesn't match expected S3 format: ${fileUrl}`);
+      return false;
+    }
+    
+    const key = fileUrl.replace(expectedPrefix, '');
+    
+    if (!key) {
+      console.warn(`Could not extract S3 key from URL: ${fileUrl}`);
+      return false;
+    }
+
+    const params = {
+      Bucket: bucketName,
+      Key: key,
+    };
+
+    const command = new DeleteObjectCommand(params);
+    await s3.send(command);
+    
+    console.log(`✅ Successfully deleted S3 file: ${key}`);
+    return true;
+  } catch (err) {
+    console.error(`❌ Error deleting S3 file: ${fileUrl}`, err);
+    return false;
+  }
+};
+
+module.exports = { uploadFile, deleteFile };
