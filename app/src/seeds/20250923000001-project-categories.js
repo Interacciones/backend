@@ -52,18 +52,18 @@ module.exports = {
         createdAt: new Date(),
         updatedAt: new Date()
       },
-        {
-          name: 'Moda y Accesorios',
-          description: 'Ropa, accesorios, joyería, zapatos y productos relacionados con la moda',
-          createdAt: new Date(),
-          updatedAt: new Date()
-        },
-        {
-          name: 'Maquillaje',
-          description: 'Productos de belleza, cosméticos, maquillaje y servicios de belleza',
-          createdAt: new Date(),
-          updatedAt: new Date()
-        },
+      {
+        name: 'Moda y Accesorios',
+        description: 'Ropa, accesorios, joyería, zapatos y productos relacionados con la moda',
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        name: 'Maquillaje',
+        description: 'Productos de belleza, cosméticos, maquillaje y servicios de belleza',
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
       {
         name: 'Sostenibilidad',
         description: 'Proyectos ecológicos, productos sostenibles, reciclaje, energías renovables y cuidado del medio ambiente',
