@@ -63,7 +63,7 @@ app.use(
     multipart: true,
     keepExtensions: true,
     formidable: {
-      maxFileSize: 5 * 1024 * 1024, // 5MB como límite de archivo
+      maxFileSize: 20 * 1024 * 1024, // 20MB como límite de archivo
     },
   }),
 );
