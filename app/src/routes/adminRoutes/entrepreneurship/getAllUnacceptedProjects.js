@@ -13,6 +13,11 @@ async function getUnacceptedProjects() {
       {
         model: db.EntrepreneurProjectPhoto,
         attributes: ['id', 'photo'],
+      },
+      {
+        model: db.ProjectCategory,
+        attributes: ['id', 'name', 'description'],
+        through: { attributes: [] } // Don't include junction table data
       }
     ],
     order: [['createdAt', 'ASC']] // Oldest first
@@ -49,6 +54,11 @@ module.exports = async (ctx) => {
           lastName: projectData.User.lastName,
           email: projectData.User.email
         },
+        categories: projectData.ProjectCategories ? projectData.ProjectCategories.map(category => ({
+          id: category.id,
+          name: category.name,
+          description: category.description
+        })) : [],
         photos: projectData.EntrepreneurProjectPhotos.map(photo => ({
           id: photo.id,
           url: photo.photo

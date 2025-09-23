@@ -70,7 +70,17 @@ module.exports = async (ctx) => {
     }
 
     // Extract project data from request body
-    const { name, description, instagramProfile, showContact } = ctx.request.body;
+    let { name, description, instagramProfile, showContact, categoryIds } = ctx.request.body;
+
+    // Parse categoryIds if it comes as a JSON string (multipart form data)
+    if (typeof categoryIds === 'string' && categoryIds.trim() !== '') {
+      try {
+        categoryIds = JSON.parse(categoryIds);
+      } catch (error) {
+        console.error('Failed to parse categoryIds JSON:', error.message);
+        categoryIds = null;
+      }
+    }
     
     // Validate required fields
     if (!name || !description) {
@@ -79,6 +89,26 @@ module.exports = async (ctx) => {
       };
       ctx.status = 400;
       return;
+    }
+
+    // Validate categories if provided
+    let validatedCategoryIds = [];
+    if (categoryIds && Array.isArray(categoryIds) && categoryIds.length > 0) {
+      const uniqueCategoryIds = [...new Set(categoryIds.map(id => parseInt(id)).filter(id => !isNaN(id)))];
+      
+      const categories = await db.ProjectCategory.findAll({
+        where: { id: uniqueCategoryIds }
+      });
+      
+      if (categories.length !== uniqueCategoryIds.length) {
+        ctx.body = {
+          message: 'One or more invalid category IDs provided',
+        };
+        ctx.status = 400;
+        return;
+      }
+      
+      validatedCategoryIds = uniqueCategoryIds;
     }
 
     // Check if photos were uploaded
@@ -134,6 +164,16 @@ module.exports = async (ctx) => {
     // Save project photos
     const photoUrls = await saveProjectPhotos(project.id, photos);
 
+    // Assign categories to project if any were provided
+    if (validatedCategoryIds.length > 0) {
+      const categoryAssignments = validatedCategoryIds.map(categoryId => ({
+        projectId: project.id,
+        categoryId: categoryId
+      }));
+      
+      await db.ProjectCategoryAssignment.bulkCreate(categoryAssignments);
+    }
+
     // Send notification email to admin about new project
     try {
       const adminEmail = process.env.GMAIL_USER;
@@ -164,6 +204,7 @@ module.exports = async (ctx) => {
         description: project.description,
         instagramProfile: project.instagramProfile,
         showContact: project.showContact,
+        categoryIds: validatedCategoryIds,
         isActive: project.isActive,
         photos: photoUrls
       }

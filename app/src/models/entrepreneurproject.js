@@ -6,6 +6,11 @@ module.exports = (sequelize, DataTypes) => {
   class EntrepreuneurProject extends Model {
     static associate(models) {
       EntrepreuneurProject.belongsTo(models.User, { foreignKey: 'userId' });
+      EntrepreuneurProject.belongsToMany(models.ProjectCategory, { 
+        through: models.ProjectCategoryAssignment,
+        foreignKey: 'projectId',
+        otherKey: 'categoryId'
+      });
       EntrepreuneurProject.hasMany(models.EntrepreneurProjectPhoto, { foreignKey: 'projectId' });
       EntrepreuneurProject.hasMany(models.EntrepreneurProjectComment, { foreignKey: 'projectId' });
       EntrepreuneurProject.hasMany(models.ReportOfEntrepreneurProject, { foreignKey: 'projectId' });

@@ -29,6 +29,7 @@ const sendEmail = require('./routes/adminRoutes/email/sendEmail');
 const getAllStudySubjects = require('./routes/unprotectedRoutes/studySubjects/getAllSubjects');
 
 const checkAdminStatus = require('./routes/adminRoutes/admin/checkAdminStatus');
+const promoteUserToAdmin = require('./routes/adminRoutes/admin/promoteUserToAdmin');
 
 const createReportOfTutor = require('./routes/userProtectedRoutes/reports/createTutorReport');
 const createReportOfReview = require('./routes/userProtectedRoutes/reports/createReviewReport');
@@ -76,6 +77,11 @@ const eliminateEntrepreneurCommentByReport = require('./routes/adminRoutes/entre
 const ignoreEntrepreneurProjectReport = require('./routes/adminRoutes/entrepreneurship/ignoreProjectReport');
 const ignoreEntrepreneurCommentReport = require('./routes/adminRoutes/entrepreneurship/ignoreCommentReport');
 
+// Project Category Routes
+const getAllCategories = require('./routes/unprotectedRoutes/entrepreneurship/getAllCategories');
+const createCategory = require('./routes/adminRoutes/entrepreneurship/createCategory');
+const updateCategory = require('./routes/adminRoutes/entrepreneurship/updateCategory');
+
 // Routes
 
 // Users
@@ -109,6 +115,7 @@ router.delete('/admin/subjects/:id', deleteStudySubject);
 
 // Admin
 router.get('/check-admin', checkAdminStatus);
+router.post('/admin/promote-user', promoteUserToAdmin);
 router.get('/admin-stats', getAdminStats);
 router.get('/admin-stats/comments-per-user', getAmountOfCommentsPerUser);
 
@@ -138,6 +145,11 @@ router.get('/report-history/tutor', getTutorReportHistory);
 
 // Priority
 router.post('/admin/priority', priority);
+
+// Project Categories
+router.get('/categories', getAllCategories);
+router.post('/admin/categories', createCategory);
+router.patch('/admin/categories/:id', updateCategory);
 
 // Entrepreneur Projects
 router.get('/projects', getAllProjects);

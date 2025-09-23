@@ -147,7 +147,7 @@ module.exports = async (ctx) => {
     }
 
     // Extract project update data from request body
-    const { name, description, instagramProfile, showContact, photosToKeep } = ctx.request.body;
+    const { name, description, instagramProfile, showContact, photosToKeep, categoryIds } = ctx.request.body;
     
     // Handle photo updates
     let newPhotos = [];
@@ -164,6 +164,29 @@ module.exports = async (ctx) => {
       }
     }
     
+    // Validate categories if provided
+    let validatedCategoryIds = [];
+    if (categoryIds !== undefined) {
+      if (Array.isArray(categoryIds) && categoryIds.length > 0) {
+        const uniqueCategoryIds = [...new Set(categoryIds.map(id => parseInt(id)).filter(id => !isNaN(id)))];
+        
+        const categories = await db.ProjectCategory.findAll({
+          where: { id: uniqueCategoryIds }
+        });
+        
+        if (categories.length !== uniqueCategoryIds.length) {
+          ctx.body = { message: 'One or more invalid category IDs provided' };
+          ctx.status = 400;
+          return;
+        }
+        
+        validatedCategoryIds = uniqueCategoryIds;
+      } else if (categoryIds.length === 0) {
+        // Empty array means remove all categories
+        validatedCategoryIds = [];
+      }
+    }
+
     const currentPhotos = project.EntrepreneurProjectPhotos;
     
     // Enforce max 5 photos total (kept + new)
@@ -190,6 +213,24 @@ module.exports = async (ctx) => {
 
     // Handle photo updates (delete unwanted photos, add new ones)
     const photoUrls = await handleProjectPhotos(project.id, currentPhotos, newPhotos, photosToKeep);
+
+    // Handle category updates if categoryIds was provided
+    if (categoryIds !== undefined) {
+      // Remove all existing category assignments
+      await db.ProjectCategoryAssignment.destroy({
+        where: { projectId: project.id }
+      });
+      
+      // Add new category assignments if any
+      if (validatedCategoryIds.length > 0) {
+        const categoryAssignments = validatedCategoryIds.map(categoryId => ({
+          projectId: project.id,
+          categoryId: categoryId
+        }));
+        
+        await db.ProjectCategoryAssignment.bulkCreate(categoryAssignments);
+      }
+    }
 
     // Send notification email to admin about project update
     try {
@@ -221,6 +262,7 @@ module.exports = async (ctx) => {
         description: updatedProject.description,
         instagramProfile: updatedProject.instagramProfile,
         showContact: updatedProject.showContact,
+        categoryIds: categoryIds !== undefined ? validatedCategoryIds : 'unchanged',
         isActive: updatedProject.isActive,
         photos: photoUrls
       }

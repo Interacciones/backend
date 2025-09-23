@@ -9,6 +9,11 @@ async function getUserProjects(userId) {
       {
         model: db.EntrepreneurProjectPhoto,
         attributes: ['id', 'photo'],
+      },
+      {
+        model: db.ProjectCategory,
+        attributes: ['id', 'name', 'description'],
+        through: { attributes: [] } // Don't include junction table data
       }
     ],
     order: [['createdAt', 'DESC']] // Show newest projects first
@@ -60,6 +65,11 @@ module.exports = async (ctx) => {
         isActive: projectData.isActive,
         createdAt: projectData.createdAt,
         updatedAt: projectData.updatedAt,
+        categories: projectData.ProjectCategories ? projectData.ProjectCategories.map(category => ({
+          id: category.id,
+          name: category.name,
+          description: category.description
+        })) : [],
         photos: projectData.EntrepreneurProjectPhotos.map(photo => ({
           id: photo.id,
           url: photo.photo

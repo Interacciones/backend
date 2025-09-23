@@ -5,6 +5,11 @@ async function getEntrepreneurProjectById(id, includeUser = false) {
     {
       model: db.EntrepreneurProjectPhoto,
       attributes: ['id', 'photo'],
+    },
+    {
+      model: db.ProjectCategory,
+      attributes: ['id', 'name', 'description'],
+      through: { attributes: [] } // Don't include junction table data
     }
   ];
   
@@ -51,6 +56,11 @@ module.exports = async (ctx) => {
       name: projectData.name,
       description: projectData.description,
       instagramProfile: projectData.instagramProfile,
+      categories: projectData.ProjectCategories ? projectData.ProjectCategories.map(category => ({
+        id: category.id,
+        name: category.name,
+        description: category.description
+      })) : [],
       photos: projectData.EntrepreneurProjectPhotos.map(photo => photo.photo)
     };
     
