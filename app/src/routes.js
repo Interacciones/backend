@@ -20,11 +20,53 @@ const createTutor = require('./routes/userProtectedRoutes/tutors/createTutor');
 const getOwnProfile = require('./routes/userProtectedRoutes/tutors/getOwnProfile');
 const updateTutorProfile = require('./routes/userProtectedRoutes/tutors/updateTutorProfile');
 
+// Report Routes
+const createReportOfReview = require('./routes/userProtectedRoutes/reports/createReviewReport');
+const createReportOfTutor = require('./routes/userProtectedRoutes/reports/createTutorReport');
+
 const sendEmail = require('./routes/adminRoutes/email/sendEmail');
-const getAllStudySubjects = require('./routes/unprotectedRoutes/studySubjects/getAllSubjects');
 
 const checkAdminStatus = require('./routes/adminRoutes/admin/checkAdminStatus');
 const promoteUserToAdmin = require('./routes/adminRoutes/admin/promoteUserToAdmin');
+
+// Admin Stats Routes
+const getAdminStats = require('./routes/adminRoutes/stats/getAdminStats');
+const getAmountOfCommentsPerUser = require('./routes/adminRoutes/stats/getAmountOfCommentsPerUser');
+const getTotalReviewsStats = require('./routes/adminRoutes/stats/getTotalReviewsStats');
+
+// Admin User Management Routes
+const getAllUsers = require('./routes/adminRoutes/users/getAllUsers');
+const banUser = require('./routes/adminRoutes/users/banUser');
+const unbanUser = require('./routes/adminRoutes/users/unbanUser');
+
+// Admin Tutor Management Routes
+const acceptTutor = require('./routes/adminRoutes/tutors/acceptTutor');
+const getUnacceptedTutors = require('./routes/adminRoutes/tutors/getUnacceptedTutors');
+const rejectTutor = require('./routes/adminRoutes/tutors/rejectTutor');
+
+// Admin Study Subjects Routes
+const addStudySubject = require('./routes/adminRoutes/studySubjects/addStudySubject');
+const deleteStudySubject = require('./routes/adminRoutes/studySubjects/deleteStudySubject');
+
+// Admin Complains Routes
+const getAllComplains = require('./routes/adminRoutes/complains/complains');
+const handleComplain = require('./routes/adminRoutes/complains/handleComplain');
+const deleteComplain = require('./routes/adminRoutes/complains/deleteComplain');
+
+// Admin Reports Routes
+const getUnreviewedReviewReports = require('./routes/adminRoutes/reports/getUnreviewedReviewsReports');
+const eliminateReviewByReport = require('./routes/adminRoutes/reports/eliminateReviewByReport');
+const ignoreReviewReport = require('./routes/adminRoutes/reports/ignoreReviewReport');
+const getUnreviewedTutorReports = require('./routes/adminRoutes/reports/getUnreviewedTutorReports');
+const eliminateTutorByReport = require('./routes/adminRoutes/reports/eliminateTutorByReport');
+const ignoreTutorReport = require('./routes/adminRoutes/reports/ignoreTutorReport');
+
+// Admin Report History Routes
+const getReviewReportHistory = require('./routes/adminRoutes/reportHistory/getReviewReportHistory');
+const getTutorReportHistory = require('./routes/adminRoutes/reportHistory/getTutorReportHistory');
+
+// Priority Route
+const priority = require('./routes/adminRoutes/priority/priority');
 
 // Entrepreneur Project Routes
 const getAllProjects = require('./routes/unprotectedRoutes/entrepreneurship/getAllProjects');
