@@ -16,14 +16,47 @@ const PORT = process.env.PORT || 3000;
 
 const app = new Koa();
 
+// CORS must be the first middleware
+app.use(cors({
+  origin: function (ctx) {
+    // Allow all origins for now, but you can restrict this later
+    return ctx.request.header.origin || '*';
+  },
+  credentials: true,
+  allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowHeaders: [
+    'Content-Type', 
+    'Content-Length', 
+    'Authorization', 
+    'Accept', 
+    'Origin', 
+    'User-Agent',
+    'DNT',
+    'Cache-Control',
+    'X-Mx-ReqToken',
+    'Keep-Alive',
+    'X-Requested-With',
+    'If-Modified-Since',
+    'Pragma',
+    'X-Forwarded-For'
+  ],
+  exposeHeaders: [
+    'Content-Length',
+    'Content-Type',
+    'Authorization'
+  ],
+  maxAge: 86400, // 24 hours
+}));
 
-app.use(cors(
-  {
-    origin: '*',
-    allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-    allowHeaders: ['Content-Type', 'Content-Length', 'Authorization', 'Cache-Control', 'Pragma', 'Accept', 'User-Agent'],
+// Handle OPTIONS requests explicitly
+app.use(async (ctx, next) => {
+  if (ctx.method === 'OPTIONS') {
+    ctx.status = 200;
+    ctx.body = '';
+    return;
   }
-));
+  await next();
+});
 
 app.use(
   koaBody({
