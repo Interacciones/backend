@@ -46,6 +46,12 @@ module.exports = {
         createdAt: new Date(),
         updatedAt: new Date()
       },
+      {
+        name: 'Artesanía',
+        description: 'Productos hechos a mano, trabajos artesanales, manualidades, tejidos, cerámica y objetos únicos creados por artesanos',
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
         {
           name: 'Moda y Accesorios',
           description: 'Ropa, accesorios, joyería, zapatos y productos relacionados con la moda',
