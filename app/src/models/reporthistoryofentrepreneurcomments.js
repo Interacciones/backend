@@ -27,7 +27,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     handlerAdminUserId: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true,
       references: { model: 'Users', key: 'id' },
       onUpdate: 'CASCADE',
       onDelete: 'SET NULL'
