@@ -1,0 +1,83 @@
+const db = require('../../../models');
+const checkAdmin = require('../../authorization/checkAdmin');
+
+async function getUnacceptedProjects() {
+  return await db.EntrepreuneurProject.findAll({
+    where: { isActive: false },
+    attributes: ['id', 'name', 'description', 'instagramProfile', 'showContact', 'createdAt', 'updatedAt'],
+    include: [
+      {
+        model: db.User,
+        attributes: ['id', 'name', 'lastName', 'email'],
+      },
+      {
+        model: db.EntrepreneurProjectPhoto,
+        attributes: ['id', 'photo'],
+      },
+      {
+        model: db.ProjectCategory,
+        attributes: ['id', 'name', 'description'],
+        through: { attributes: [] } // Don't include junction table data
+      }
+    ],
+    order: [['createdAt', 'ASC']] // Oldest first
+  });
+}
+
+module.exports = async (ctx) => {
+  try {
+    // Check admin authorization
+    const isAdmin = await checkAdmin(ctx);
+    if (!isAdmin) {
+      ctx.body = { message: 'Unauthorized: Admin access required' };
+      ctx.status = 401;
+      return;
+    }
+
+    // Get all projects pending approval
+    const projects = await getUnacceptedProjects();
+
+    // Format the projects for response
+    const formattedProjects = projects.map(project => {
+      const projectData = project.toJSON();
+      return {
+        id: projectData.id,
+        name: projectData.name,
+        description: projectData.description,
+        instagramProfile: projectData.instagramProfile,
+        showContact: projectData.showContact,
+        createdAt: projectData.createdAt,
+        updatedAt: projectData.updatedAt,
+        user: {
+          id: projectData.User.id,
+          name: projectData.User.name,
+          lastName: projectData.User.lastName,
+          email: projectData.User.email
+        },
+        categories: projectData.ProjectCategories ? projectData.ProjectCategories.map(category => ({
+          id: category.id,
+          name: category.name,
+          description: category.description
+        })) : [],
+        photos: projectData.EntrepreneurProjectPhotos.map(photo => ({
+          id: photo.id,
+          url: photo.photo
+        }))
+      };
+    });
+
+    // Return success response
+    ctx.body = {
+      message: 'Unaccepted entrepreneur projects fetched successfully',
+      data: formattedProjects
+    };
+    ctx.status = 200;
+  } catch (error) {
+    console.error('Error fetching unaccepted projects:', error);
+    ctx.body = {
+      message: 'Failed to fetch unaccepted projects',
+      error: error.message
+    };
+    ctx.status = 500;
+  }
+}; 

@@ -19,43 +19,40 @@ const createReview = require('./routes/userProtectedRoutes/reviews/createReview'
 const createTutor = require('./routes/userProtectedRoutes/tutors/createTutor');
 const getOwnProfile = require('./routes/userProtectedRoutes/tutors/getOwnProfile');
 const updateTutorProfile = require('./routes/userProtectedRoutes/tutors/updateTutorProfile');
-const createReportOfTutor = require('./routes/userProtectedRoutes/reports/createTutorReport');
-const createReportOfReview = require('./routes/userProtectedRoutes/reports/createReviewReport');
 
-// Imports - Admin Protected Routes
-const checkAdminStatus = require('./routes/adminRoutes/admin/checkAdminStatus');
-const acceptTutor = require('./routes/adminRoutes/tutors/acceptTutor');
-const getUnacceptedTutors = require('./routes/adminRoutes/tutors/getUnacceptedTutors');
-const rejectTutor = require('./routes/adminRoutes/tutors/rejectTutor');
-const banUser = require('./routes/adminRoutes/users/banUser');
-const getAllUsers = require('./routes/adminRoutes/users/getAllUsers');
-const unbanUser = require('./routes/adminRoutes/users/unbanUser');
 const sendEmail = require('./routes/adminRoutes/email/sendEmail');
-const getUnreviewedTutorReports = require('./routes/adminRoutes/reports/getUnreviewedTutorReports');
-const getUnreviewedReviewReports = require('./routes/adminRoutes/reports/getUnreviewedReviewsReports');
-const eliminateReviewByReport = require('./routes/adminRoutes/reports/eliminateReviewByReport');
-const eliminateTutorByReport = require('./routes/adminRoutes/reports/eliminateTutorByReport');
-const ignoreReviewReport = require('./routes/adminRoutes/reports/ignoreReviewReport');
-const ignoreTutorReport = require('./routes/adminRoutes/reports/ignoreTutorReport');
-const getAdminStats = require('./routes/adminRoutes/stats/getAdminStats');
-const getAmountOfCommentsPerUser = require('./routes/adminRoutes/stats/getAmountOfCommentsPerUser');
-const getTotalReviewsStats = require('./routes/adminRoutes/stats/getTotalReviewsStats');
-const addStudySubject = require('./routes/adminRoutes/studySubjects/addStudySubject');
-const deleteStudySubject = require('./routes/adminRoutes/studySubjects/deleteStudySubject');
-const getReviewReportHistory = require('./routes/adminRoutes/reportHistory/getReviewReportHistory');
-const getTutorReportHistory = require('./routes/adminRoutes/reportHistory/getTutorReportHistory');
-const getAllComplains = require('./routes/adminRoutes/complains/complains');
-const handleComplain = require('./routes/adminRoutes/complains/handleComplain');
-const deleteComplain = require('./routes/adminRoutes/complains/deleteComplain');
-const priority = require('./routes/adminRoutes/priority/priority');
+const getAllStudySubjects = require('./routes/unprotectedRoutes/studySubjects/getAllSubjects');
 
-// ==========================================
-// ROUTES
-// ==========================================
+const checkAdminStatus = require('./routes/adminRoutes/admin/checkAdminStatus');
+const promoteUserToAdmin = require('./routes/adminRoutes/admin/promoteUserToAdmin');
 
-// ==========================================
-// Unprotected Routes (Public)
-// ==========================================
+// Entrepreneur Project Routes
+const getAllProjects = require('./routes/unprotectedRoutes/entrepreneurship/getAllProjects');
+const getProject = require('./routes/unprotectedRoutes/entrepreneurship/getProject');
+const createProject = require('./routes/userProtectedRoutes/entrepreneurship/createProject');
+const updateProject = require('./routes/userProtectedRoutes/entrepreneurship/updateProject');
+const getOwnProject = require('./routes/userProtectedRoutes/entrepreneurship/getOwnProject');
+const getAllUnacceptedProjects = require('./routes/adminRoutes/entrepreneurship/getAllUnacceptedProjects');
+const acceptProject = require('./routes/adminRoutes/entrepreneurship/acceptProject');
+const rejectProject = require('./routes/adminRoutes/entrepreneurship/rejectProject');
+const deleteOwnProject = require('./routes/userProtectedRoutes/entrepreneurship/deleteOwnProject');
+const createEntrepreneurComment = require('./routes/userProtectedRoutes/entrepreneurship/createComment');
+const getEntrepreneurComments = require('./routes/unprotectedRoutes/entrepreneurship/getComments');
+const createEntrepreneurProjectReport = require('./routes/userProtectedRoutes/reports/createEntrepreneurProjectReport');
+const createEntrepreneurCommentReport = require('./routes/userProtectedRoutes/reports/createEntrepreneurCommentReport');
+const getUnreviewedEntrepreneurProjectReports = require('./routes/adminRoutes/entrepreneurship/getUnreviewedProjectReports');
+const getUnreviewedEntrepreneurCommentReports = require('./routes/adminRoutes/entrepreneurship/getUnreviewedCommentReports');
+const eliminateEntrepreneurProjectByReport = require('./routes/adminRoutes/entrepreneurship/eliminateProjectByReport');
+const eliminateEntrepreneurCommentByReport = require('./routes/adminRoutes/entrepreneurship/eliminateCommentByReport');
+const ignoreEntrepreneurProjectReport = require('./routes/adminRoutes/entrepreneurship/ignoreProjectReport');
+const ignoreEntrepreneurCommentReport = require('./routes/adminRoutes/entrepreneurship/ignoreCommentReport');
+
+// Project Category Routes
+const getAllCategories = require('./routes/unprotectedRoutes/entrepreneurship/getAllCategories');
+const createCategory = require('./routes/adminRoutes/entrepreneurship/createCategory');
+const updateCategory = require('./routes/adminRoutes/entrepreneurship/updateCategory');
+
+// Routes
 
 // Users
 router.post('/users', createUser);
@@ -96,8 +93,7 @@ router.post('/reports/tutor', createReportOfTutor);
 
 // Admin Status
 router.get('/check-admin', checkAdminStatus);
-
-// Admin Stats
+router.post('/admin/promote-user', promoteUserToAdmin);
 router.get('/admin-stats', getAdminStats);
 router.get('/admin-stats/comments-per-user', getAmountOfCommentsPerUser);
 router.get('/admin-stats/reviews', getTotalReviewsStats);
@@ -140,5 +136,31 @@ router.get('/report-history/tutor', getTutorReportHistory);
 
 // Priority
 router.post('/admin/priority', priority);
+
+// Project Categories
+router.get('/categories', getAllCategories);
+router.post('/admin/categories', createCategory);
+router.patch('/admin/categories/:id', updateCategory);
+
+// Entrepreneur Projects
+router.get('/projects', getAllProjects);
+router.get('/projects/:id', getProject);
+router.post('/projects', createProject);
+router.patch('/projects/:id', updateProject);
+router.get('/projects-self', getOwnProject);
+router.delete('/projects/:id', deleteOwnProject);
+router.get('/projects/:projectId/comments', getEntrepreneurComments);
+router.post('/projects/:projectId/comments', createEntrepreneurComment);
+router.get('/unaccepted-projects', getAllUnacceptedProjects);
+router.patch('/projects/accept/:id', acceptProject);
+router.delete('/projects/reject/:id', rejectProject);
+router.post('/reports/project', createEntrepreneurProjectReport);
+router.post('/reports/project-comment', createEntrepreneurCommentReport);
+router.get('/reports/project', getUnreviewedEntrepreneurProjectReports);
+router.get('/reports/project-comment', getUnreviewedEntrepreneurCommentReports);
+router.patch('/reports/project/eliminate', eliminateEntrepreneurProjectByReport);
+router.patch('/reports/project/ignore', ignoreEntrepreneurProjectReport);
+router.patch('/reports/project-comment/eliminate', eliminateEntrepreneurCommentByReport);
+router.patch('/reports/project-comment/ignore', ignoreEntrepreneurCommentReport);
 
 module.exports = router;
